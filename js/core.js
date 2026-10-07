@@ -7,7 +7,8 @@
 /* ---------- shortcuts ---------- */
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+/* (a missing value is empty, never the word "undefined") */
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 /* Nolan's logo (the N between four stars), for the buttons that take you home */
 const LOGO_SVG=`<svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="lm-line" d="M17 47V17L47 47V17"/><circle cx="17" cy="47" r="3.2"/><circle cx="17" cy="17" r="3.2"/><circle cx="47" cy="47" r="3.2"/><circle cx="47" cy="17" r="3.2"/></svg>`;
 /* stable id from a title: "Instalar WepSIM y CREATOR" → "instalar-wepsim-y-creator" */
@@ -166,7 +167,7 @@ function showDetail(boxId, ev){
   const rows=[[t("detail.when"),when]];
   if(ev.room) rows.push([t("detail.where"),ev.room]);
   if(ev.format) rows.push([t("detail.format"),ev.format]);
-  rows.push([t("detail.weight"),ev.weight]);
+  if(ev.weight) rows.push([t("detail.weight"),ev.weight]);
   if(ev.syllabus) rows.push([t("detail.covers"),ev.syllabus]);
   const w=weekOf(ev.date);
   box.hidden=false;

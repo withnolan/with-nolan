@@ -37,6 +37,9 @@ const Router=(function(){
     bar.style.setProperty("--ac-on",on.style.getPropertyValue("--ac"));
   }
   window.addEventListener("resize",pill);
+  /* the tabs are centred: when a long page brings in the scrollbar the bar narrows and they move,
+     with no "resize" from the window, so the pill follows the bar's own size */
+  if(window.ResizeObserver) new ResizeObserver(pill).observe(bar);
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(pill);
   /* the first placement is not animated: the pill appears already in place */
   requestAnimationFrame(()=>requestAnimationFrame(()=>bar.classList.add("ready")));

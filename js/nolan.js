@@ -97,7 +97,9 @@ const Nolan=(function(){
       put(".n-time",hm); put(".n-date",($("#clockDate")||{}).textContent||""); put(".n-week",($("#weekBadge")||{}).innerHTML||"",true);
     };
     tick(); document.addEventListener("minute",tick);
-    document.addEventListener("newDay",e=>{ tick(); if(day===addDays(e.detail,-1)) day=e.detail; if(box&&!box.hidden) draw(); });
+    document.addEventListener("newDay",e=>{ tick(); if(day===addDays(e.detail,-1)) day=e.detail;
+      /* (on this week when Sunday turns into Monday: the next one follows, as the day does) */
+      if(weekStart===mondayOf(addDays(e.detail,-1))) weekStart=mondayOf(e.detail); if(box&&!box.hidden) draw(); });
     MyEvents.onChange(()=>{ if(shown!=="mes") draw(); });
     return tick;
   }

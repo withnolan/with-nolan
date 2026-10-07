@@ -75,7 +75,8 @@ const CHECK={errors:[],warnings:[]};
     const reason=noClassReason(e.date);
     /* (an exam in the exam period is just where it belongs) */
     if(reason&&reason.why!=="weekend"&&!e.online&&!(reason.why==="exams"&&e.type==="ex")) warn(`${txt}: there is no class that day (${reason.why}).`);
-    else if(!reason&&!e.online&&e.type!=="cf"&&!classesOn(e.date).some(c=>c.subject===e.subject))
+    /* (a one-off class, type "cl", is the class of that day: a make-up class needs no regular one) */
+    else if(!reason&&!e.online&&e.type!=="cf"&&e.type!=="cl"&&!classesOn(e.date).some(c=>c.subject===e.subject))
       warn(`${txt}: no ${S.short} class that day.`);
   });
 

@@ -193,7 +193,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await p.evaluate(()=>Universe.scene()==="uc3m"&&!document.getElementById("notes").hidden&&document.querySelector("#notes .p-back-top").getAttribute("href")==="#schedule"),
       "Notes open from UC3M without leaving its galaxy, and Back returns to the timetable");
     await p.click("#notes .p-back-top"); await p.waitForTimeout(600);
-    await p.click("header .home-btn"); await p.waitForTimeout(3200);
+    await p.click("header .home-btn"); await p.waitForFunction(()=>Universe.scene()==="home"&&!Universe.busy(),null,{timeout:15000}).catch(()=>{});
     /* what the second click does is noted in the page itself, right after it (a slow software graphics card
        makes every evaluate late): the timetable is on its way in, while the camera, on its way from home (c0)
        to UC3M (c1), still has most of the trip ahead (left: the share of the way still to go) */
@@ -211,7 +211,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       `a second click during the trip shows the timetable at once, while the camera flies on (the sky never jumps) (${JSON.stringify(sk)})`);
     await p.click("header .home-btn"); await p.waitForTimeout(200);
     ok(await p.evaluate(()=>Universe.scene()==="home"&&!!document.querySelector("header .home-btn .logo-mark")),"the logo takes you home, flying back to the home galaxy");
-    await p.waitForTimeout(2800);
+    await p.waitForFunction(()=>Universe.scene()==="home"&&!Universe.busy(),null,{timeout:15000}).catch(()=>{});
     /* the journey: home's big button flies to the Earth and starts the tour */
     await p.click("#tourStart"); await p.waitForFunction(()=>location.hash==="#earth"&&!Universe.busy(),null,{timeout:15000}).catch(()=>{});
     const st=await p.evaluate(()=>({scene:Universe.scene(),view:!document.getElementById("sightView").hidden,tour:!document.getElementById("tour").hidden,
@@ -296,7 +296,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const r=await p.evaluate(()=>({scene:Universe.scene(),hash:location.hash,view:!document.getElementById("sightView").hidden,
       top:getComputedStyle(document.querySelector("#portal .p-top")).display,seen:!Universe.gl()||Universe.hole()}));
     ok(r.scene==="blackhole"&&r.hash==="#blackhole"&&r.view&&r.top==="none"&&r.seen,`${mobile?"mobile":"desktop"}: the black hole card flies up close to it (${JSON.stringify(r)})`);
-    await p.click("#tour .t-exit"); await p.waitForTimeout(3200);
+    await p.click("#tour .t-exit"); await p.waitForFunction(()=>Universe.scene()==="home"&&location.hash==="#home"&&!Universe.busy(),null,{timeout:15000}).catch(()=>{});
     ok(await p.evaluate(()=>Universe.scene()==="home"&&location.hash==="#home"),`${mobile?"mobile":"desktop"}: and back home`);
     await p.context().close();
   }
@@ -306,7 +306,10 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   {
     const p=await open(b,{hash:"schedule"});
     for(const tab of ["subjects","exams","tasks","faculty","schedule"]){
-      await p.click(`nav.bar a[data-tab=${tab}]`); await p.waitForTimeout(1000);
+      await p.click(`nav.bar a[data-tab=${tab}]`);
+      /* (the pill slides over: wait for it to arrive, a slow machine stretches the slide) */
+      await p.waitForFunction(()=>{ const on=document.querySelector("a[data-tab].on"), i=document.querySelector(".tab-pill");
+        return on&&i&&Math.abs(i.getBoundingClientRect().left-on.getBoundingClientRect().left)<2; },null,{timeout:5000}).catch(()=>{});
       const r=await p.evaluate(()=>{ const on=document.querySelector("a[data-tab].on"), i=document.querySelector(".tab-pill").getBoundingClientRect(), a=on.getBoundingClientRect();
         return {tab:on.dataset.tab,dx:Math.abs(i.left-a.left),cur:on.getAttribute("aria-current")}; });
       ok(r.tab===tab&&r.dx<2&&r.cur==="page",`${tab}: active, with the pill on top and aria-current (${r.dx.toFixed(1)}px)`);
@@ -585,8 +588,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const p=await open(b,{hash:"settings"});
     ok(await p.evaluate(()=>!document.getElementById("settings").hidden&&document.querySelectorAll("#settingsList .seg").length===4&&!!document.querySelector(".seg[data-key=look]")&&!!document.querySelector(".seg[data-key=scroll]")&&!!document.querySelector(".seg[data-key=nova]")&&!document.querySelector(".seg[data-key=theme]")),"#settings shows language, Effects (one choice for animations and quality), smooth scrolling and supernovas (no light theme any more)");
     const nav=p.waitForEvent("framenavigated");
-    await p.click('.seg[data-key=lang] button[data-value=en]'); await p.waitForTimeout(250);
-    ok(await p.evaluate(()=>document.getElementById("shift").classList.contains("on")&&!document.querySelector("#shift canvas")),"changing a setting fades softly before reloading (no tunnel of stars)");
+    await p.click('.seg[data-key=lang] button[data-value=en]');
+    await p.waitForFunction(()=>document.getElementById("shift").classList.contains("on"),null,{timeout:3000}).catch(()=>{});
+    ok(await p.evaluate(()=>document.getElementById("shift").classList.contains("on")&&!document.querySelector("#shift canvas")).catch(()=>false),"changing a setting fades softly before reloading (no tunnel of stars)");
     await nav; await p.waitForLoadState("domcontentloaded");
     ok(await p.evaluate(()=>document.documentElement.classList.contains("shifting")||document.getElementById("shift").classList.contains("on")),"after reloading, the passage still covers the page");
     await p.waitForLoadState("load");
@@ -718,18 +722,22 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   {
     const p=await open(b,{hash:"subjects"});
     await p.waitForTimeout(400); await p.evaluate(()=>window.scrollTo(0,700));
-    await p.waitForFunction(()=>scrollY>600&&document.body.classList.contains("compact"),null,{timeout:4000}).catch(()=>{}); await p.waitForTimeout(500);
+    await p.waitForFunction(()=>scrollY>600&&document.body.classList.contains("compact"),null,{timeout:4000}).catch(()=>{});
+    await p.waitForFunction(()=>+getComputedStyle(document.querySelector(".mini-l")).opacity>.9,null,{timeout:4000}).catch(()=>{});
     const d=await p.evaluate(()=>({on:document.body.classList.contains("compact"),time:document.querySelector(".mini-l .mini-time").textContent,
       home:getComputedStyle(document.querySelector(".mini-l")).opacity,inert:document.querySelector(".mini-r").inert,
       links:[...document.querySelectorAll(".mini-r a")].map(a=>a.getAttribute("href")).join(" ")}));
     ok(d.on&&d.time==="13:06"&&+d.home>.9&&!d.inert&&/#notes/.test(d.links)&&/#settings/.test(d.links),`computer: scrolled down, the tab bar keeps home, the time, notes and settings (${JSON.stringify(d)})`);
     await p.click(".mini-l .home-btn"); await p.waitForTimeout(400);
     ok(await p.evaluate(()=>location.hash==="#home"),"the small logo takes you home");
-    await p.goto(PAGE+"#subjects"); await p.waitForTimeout(400); await p.evaluate(()=>window.scrollTo(0,0)); await p.waitForTimeout(300);
+    await p.goto(PAGE+"#subjects"); await p.waitForTimeout(400); await p.evaluate(()=>window.scrollTo(0,0));
+    await p.waitForFunction(()=>!document.body.classList.contains("compact"),null,{timeout:4000}).catch(()=>{});
     ok(await p.evaluate(()=>!document.body.classList.contains("compact")&&document.querySelector(".mini-l").inert),"back at the top, the full header again");
     await p.context().close();
     const m=await open(b,{hash:"subjects",mobile:true});
-    await m.evaluate(()=>{ document.querySelector("body > div.wrap").scrollTop=500; }); await m.waitForTimeout(700);
+    await m.evaluate(()=>{ document.querySelector("body > div.wrap").scrollTop=500; });
+    await m.waitForFunction(()=>document.body.classList.contains("compact")&&document.querySelector("header.top").getBoundingClientRect().height<90
+      &&+getComputedStyle(document.querySelector(".hdr-time")).opacity>.9,null,{timeout:5000}).catch(()=>{});
     const r=await m.evaluate(()=>({on:document.body.classList.contains("compact"),h:document.querySelector("header.top").getBoundingClientRect().height,
       t:getComputedStyle(document.querySelector(".hdr-time")).opacity,txt:document.querySelector(".hdr-time").textContent}));
     ok(r.on&&r.h<90&&+r.t>.9&&r.txt==="13:06",`phone: scrolled down, the header shrinks to one row with the time (${Math.round(r.h)} px)`);
