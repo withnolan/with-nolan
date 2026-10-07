@@ -67,6 +67,7 @@ const CHECK={errors:[],warnings:[]};
     if(!isDate(e.date)) return `badly written date "${e.date}"`;
     if(e.until&&(!isDate(e.until)||e.until<e.date)) return `"until" (${e.until}) badly written or before the date`;
     if(!e.what) return `missing "what"`;
+    if(e.test&&e.type!=="ex") warn(`${e.subject} · "${e.what.slice(0,40)}": "test" only marks an assessment (type "ex").`);
     return null;
   });
   EVENTS.filter(e=>!e.noDay).forEach(e=>{

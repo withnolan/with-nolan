@@ -4,7 +4,7 @@
    Needs Playwright with Chromium (npm i playwright). It never touches the
    real cloud or the real weather: JSONBin and Open-Meteo calls are simulated
    or blocked (config.js may hold real keys).
-   138 checks (without NOLAN_PIN: 134, and 3 skipped), by section:
+   140 checks (without NOLAN_PIN: 136, and 3 skipped), by section:
    · Loading: no errors, nothing wider than a phone.
    · PIN and start: the entry screen (logo and guest button; the logo or a
      typed digit opens the keypad; nothing read from the cloud behind it),
@@ -44,7 +44,10 @@ const PAGE="file://"+path.resolve(__dirname,"..","index.html");
 let failures=0, checks=0, skipped=0;
 const ok=(c,text)=>{ checks++; console.log((c?"  ✔ ":"  ✘ ")+text); if(!c) failures++; };
 const skip=text=>{ skipped++; console.log(`  – ${text} (skipped: set NOLAN_PIN to run the PIN checks)`); };
-const section=text=>console.log("\n"+text);
+/* ONLY="Astral,Settings" node tests/run.js runs just the sections whose names start with those words
+   (to check what a change touched without the whole run) */
+const ONLY=(process.env.ONLY||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
+const section=text=>{ const on=!ONLY.length||ONLY.some(o=>text.toLowerCase().startsWith(o)); if(on) console.log("\n"+text); return on; };
 
 /* opens the page at a given time (local time of this computer) */
 const DEVICE="f9d8f1cd96a7b5ffd4c1f01c7f5f0a7c00940726b33625b4755a1d4f25a91f20";
@@ -104,7 +107,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   /* if this Playwright version has no browser of its own, the system Chromium is used */
   const b=await chromium.launch().catch(()=>chromium.launch({executablePath:process.env.CHROMIUM||"/opt/pw-browsers/chromium"}));
 
-  section("Loading");
+  if(section("Loading")){
   for(const mobile of [false,true]){
     const p=await open(b,{mobile});
     const r=await p.evaluate(()=>({width:document.documentElement.scrollWidth,errors:CHECK.errors,warnings:CHECK.warnings.length,
@@ -117,8 +120,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     if(r.warnings) console.log(`    (the checker leaves ${r.warnings} warnings in the console)`);
     await p.context().close();
   }
+  }
 
-  section("PIN and start");
+  if(section("PIN and start")){
   {
     const p=await open(b,{locked:true,mobile:true});
     ok(await p.evaluate(()=>document.documentElement.hasAttribute("data-locked")&&!document.getElementById("gate").hidden
@@ -296,8 +300,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await p.evaluate(()=>Universe.scene()==="home"&&location.hash==="#home"),`${mobile?"mobile":"desktop"}: and back home`);
     await p.context().close();
   }
+  }
 
-  section("Tabs");
+  if(section("Tabs")){
   {
     const p=await open(b,{hash:"schedule"});
     for(const tab of ["subjects","exams","tasks","faculty","schedule"]){
@@ -310,8 +315,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await p.evaluate(()=>location.hash==="#subjects"&&!document.getElementById("subjects").hidden),"old Spanish links (#asignaturas) still work");
     await p.context().close();
   }
+  }
 
-  section("Today: red line and live status (Monday 21 Sep)");
+  if(section("Today: red line and live status (Monday 21 Sep)")){
   for(const [time,mode,text] of [["08:12","pinned-top","empiezas en 48 min"],["10:36","","siguiente en 9 min"],["13:06","","quedan 54 min"],["16:40","pinned-bottom","día de clase terminado"]]){
     const p=await open(b,{time:"2026-09-21T"+time+":00"});
     const r=await p.evaluate(()=>({live:document.getElementById("dayLive").textContent,cls:(document.querySelector(".now-line")||{}).className}));
@@ -344,8 +350,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(/cierra el sábado/.test(await q.textContent("#next7")),"a window of several days stays visible while it is open");
     await q.context().close();
   }
+  }
 
-  section("Cloud (simulated JSONBin)");
+  if(section("Cloud (simulated JSONBin)")){
   const REC={hechas:["gk_0","tk_is_0"],grades:{g_main_ed_0:"7"},notas:"old notes"};
   for(const mode of ["fails","slow","normal"]){
     const writes=[];
@@ -395,8 +402,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(u.pops===1&&u.born===1,`a tick of your own pops, and its star is born (${JSON.stringify(u)})`);
     await p.context().close();
   }
+  }
 
-  section("Planner");
+  if(section("Planner")){
   {
     const p=await open(b,{hash:"planner",time:"2026-10-20T10:00:00"});
     const r=await p.evaluate(()=>({opens:document.querySelectorAll("#planner-grid .m-chip.opens").length,
@@ -412,8 +420,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(added.chip.join()==="2026-10-22"&&(added.cloud||added.kept===1)&&gone===0&&!p.errors.length,`+ adds your own event on its day, and it can be deleted (${JSON.stringify(added)}, left ${gone})`);
     await p.context().close();
   }
+  }
 
-  section("Add to my calendar (.ics)");
+  if(section("Add to my calendar (.ics)")){
   {
     const p=await open(b,{hash:"exams"});
     const ics=await p.evaluate(()=>buildICS(icsEvents(),new Date("2026-09-21T11:06:00Z")));
@@ -439,8 +448,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(!p.errors.length,`no JavaScript errors ${p.errors.join(" | ")}`);
     await p.context().close();
   }
+  }
 
-  section("Home");
+  if(section("Home")){
   {
     const p=await open(b,{hash:"subjects"});
     /* (once the universe has finished starting: a software graphics card compiles the wonders one by one, and
@@ -503,8 +513,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await p.evaluate(()=>document.documentElement.lang==="en"&&document.querySelector("a[data-tab=schedule] .tab-label").textContent==="Schedule"),"English by default");
     await ctx.close();
   }
+  }
 
-  section("Guest");
+  if(section("Guest")){
   {
     /* a link with ?guest (to share) opens the demo straight away, without the entry screen */
     const p=await open(b,{locked:true,hash:"home",path:"?guest"});
@@ -554,8 +565,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       "Settings has the way out of guest mode, back to the entry screen");
     await p.context().close();
   }
+  }
 
-  section("Settings");
+  if(section("Settings")){
   {
     /* smooth scrolling: a notch of the wheel glides home's window there; turned off, it jumps at once */
     const p=await open(b,{hash:"home",settings:{quality:"low"}});
@@ -571,7 +583,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   {
     const p=await open(b,{hash:"settings"});
-    ok(await p.evaluate(()=>!document.getElementById("settings").hidden&&document.querySelectorAll("#settingsList .seg").length===3&&!!document.querySelector(".seg[data-key=look]")&&!!document.querySelector(".seg[data-key=scroll]")&&!document.querySelector(".seg[data-key=theme]")),"#settings shows language, Effects (one choice for animations and quality) and smooth scrolling (no light theme any more)");
+    ok(await p.evaluate(()=>!document.getElementById("settings").hidden&&document.querySelectorAll("#settingsList .seg").length===4&&!!document.querySelector(".seg[data-key=look]")&&!!document.querySelector(".seg[data-key=scroll]")&&!!document.querySelector(".seg[data-key=nova]")&&!document.querySelector(".seg[data-key=theme]")),"#settings shows language, Effects (one choice for animations and quality), smooth scrolling and supernovas (no light theme any more)");
     const nav=p.waitForEvent("framenavigated");
     await p.click('.seg[data-key=lang] button[data-value=en]'); await p.waitForTimeout(250);
     ok(await p.evaluate(()=>document.getElementById("shift").classList.contains("on")&&!document.querySelector("#shift canvas")),"changing a setting fades softly before reloading (no tunnel of stars)");
@@ -608,8 +620,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await q.evaluate(()=>getComputedStyle(document.querySelector(".sky-layer.l-a")).animationName==="none"&&getComputedStyle(document.querySelector("#stats b")).animationName!==undefined),"Animations: Basic stops the decorations");
     await q.context().close();
   }
+  }
 
-  section("Astral");
+  if(section("Astral")){
   {
     {
       /* before the weather arrives its card already has its full shape: nothing on home moves when it comes */
@@ -640,6 +653,18 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const wn=await p.evaluate(()=>({list:Wonders.list(),broken:window.UNIVERSE_EXTRAS.filter(x=>x.broken).map(x=>x.id),nova:Wonders.nova(-.5,-.5,10),state:Wonders.state()}));
     ok(wn.list.join()==="orion,pleiades,ringneb,binary,antennae,nova,earth"&&!wn.broken.length&&wn.nova&&wn.state&&wn.state.k>0&&wn.state.at&&!p.errors.length,
       `the seven wonders compile and draw, and a supernova can flare (${JSON.stringify(wn)})`);
+    /* Settings: "Supernova now" sets a quick one off at once and leaves just the sky to watch it; turning
+       supernovas off is saved without reloading the page */
+    await p.evaluate(()=>{ window.__stay=1; location.hash="#settings"; });
+    await p.waitForFunction(()=>{ const b=document.getElementById("novaNow"); return b&&b.offsetParent; },null,{timeout:10000}).catch(()=>{});
+    await p.click("#novaNow").catch(()=>{});
+    const nv=await p.evaluate(()=>({view:View.on(),st:Wonders.state()}));
+    ok(nv.view&&nv.st&&nv.st.k>=0&&nv.st.k<.2&&nv.st.at,`Settings: "Supernova now" sets one off at once and shows just the sky (${JSON.stringify(nv)})`);
+    await p.keyboard.press("Escape");
+    await p.click('.seg[data-key="nova"] button[data-value="off"]').catch(()=>{});
+    const off=await p.evaluate(()=>({nova:SETTINGS.nova,saved:JSON.parse(localStorage.getItem("settings")).nova,stay:window.__stay}));
+    ok(off.nova==="off"&&off.saved==="off"&&off.stay===1,`Settings: supernovas can be turned off, without reloading (${JSON.stringify(off)})`);
+    await p.click('.seg[data-key="nova"] button[data-value="on"]').catch(()=>{});
     /* the band of our galaxy is painted, and its dust is drawn */
     ok(await p.evaluate(()=>Universe.band())&&!p.errors.length,"the band of our galaxy crosses the sky, painted once");
     /* the opening: from the Earth and the Moon, the first time in a session */
@@ -687,8 +712,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       `Quality = Medium: opening UC3M flies into its star and lands in its own sky (${JSON.stringify(fly)})`);
     await md.context().close();
   }
+  }
 
-  section("Compact header when scrolled");
+  if(section("Compact header when scrolled")){
   {
     const p=await open(b,{hash:"subjects"});
     await p.waitForTimeout(400); await p.evaluate(()=>window.scrollTo(0,700));
@@ -709,8 +735,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(r.on&&r.h<90&&+r.t>.9&&r.txt==="13:06",`phone: scrolled down, the header shrinks to one row with the time (${Math.round(r.h)} px)`);
     await m.context().close();
   }
+  }
 
-  section("Mobile: swiping between tabs");
+  if(section("Mobile: swiping between tabs")){
   {
     const p=await open(b,{hash:"subjects",mobile:true});
     const cdp=await p.context().newCDPSession(p);
@@ -727,8 +754,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await p.evaluate(()=>{ const w=document.querySelector("body > div.wrap"); return !w.style.transform&&!w.style.opacity; }),"a cancelled gesture leaves everything in place");
     await p.context().close();
   }
+  }
 
-  section("Idle");
+  if(section("Idle")){
   {
     const p=await open(b,{clock:"live"});
     await p.clock.runFor(60000);
@@ -739,8 +767,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     ok(await p.evaluate(()=>!document.body.classList.contains("idle")),"touching brings them back");
     await p.context().close();
   }
+  }
 
-  section("Offline");
+  if(section("Offline")){
   {
     /* the offline copy needs the site served over http: a tiny local server */
     const http=require("http"), fs=require("fs");
@@ -782,6 +811,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     for(let k=0;k<40&&!writes.some(w=>(w.hechas||[]).includes(id));k++) await new Promise(r=>setTimeout(r,200));
     ok(still&&writes.some(w=>(w.hechas||[]).includes(id)),`a task ticked offline is still ticked after reopening, and is saved once online (${still}, ${writes.length} writes)`);
     await ctx.close(); srv.close();
+  }
   }
 
   await b.close();

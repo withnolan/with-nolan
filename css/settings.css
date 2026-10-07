@@ -5,6 +5,13 @@
 .set-txt b{display:block;font-size:.98rem}
 .set-txt p{margin:4px 0 0;font-size:.84rem;color:var(--ink-3);max-width:62ch}
 .set-note{margin:0;padding:14px 20px;font-size:.8rem;color:var(--ink-3)}
+/* supernovas need the 3D universe */
+html:not(.gl) .set-nova{display:none}
+.nova-btn{flex:0 0 auto;font:inherit;font-size:.84rem;font-weight:600;padding:9px 16px;border-radius:11px;cursor:pointer;
+  color:#f3e9ff;background:linear-gradient(135deg,rgba(150,90,255,.35),rgba(90,140,255,.25));border:1px solid rgba(190,150,255,.45);
+  box-shadow:0 0 18px rgba(160,100,255,.25);transition:box-shadow .25s ease,transform .14s var(--spring)}
+@media (hover:hover){.nova-btn:hover{box-shadow:0 0 28px rgba(170,120,255,.5)}}
+.nova-btn:active{transform:scale(.95)}
 /* segmented control: one pill slides between the options */
 .seg{flex:0 0 auto;display:inline-flex;gap:2px;padding:3px;border-radius:11px;background:var(--card-2);border:1px solid var(--rule)}
 .seg button{

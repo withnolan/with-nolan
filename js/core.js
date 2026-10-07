@@ -107,8 +107,11 @@ const roomOn=(c,k)=>c.rooms&&c.dates&&c.rooms[c.dates.indexOf(k)]||c.room;
 const classState=(c,m)=>m<c.start?"upcoming":m<c.end?"now":"over";
 
 /* ---------- graded dates (EVENTS) ---------- */
-const typeName=ty=>t("type."+ty);
-const typeLong=ty=>t("typeLong."+ty);
+/* the kind of an event, as it is called: an assessment marked test:1 (an online test, a quiz) is a "Test",
+   not an "Exam", but counts as an exam everywhere else (type stays "ex") */
+const kindOf=e=>typeof e==="string"?e:e.type==="ex"&&e.test?"test":e.type;
+const typeName=e=>t("type."+kindOf(e));
+const typeLong=e=>t("typeLong."+kindOf(e));
 const lastDay=e=>e.until||e.date;                     /* last day (multi-day windows) */
 const weekNumber=e=>{ const w=weekOf(e.date); return w?w.n:null; };
 const isAssessment=e=>e.type==="ex"||e.type==="en";
@@ -168,7 +171,7 @@ function showDetail(boxId, ev){
   const w=weekOf(ev.date);
   box.hidden=false;
   box.style.borderLeftColor=S.color;
-  box.innerHTML=`<div class="ev-head"><b style="color:${S.color}">${esc(t("detail.title",{type:typeLong(ev.type),subject:S.name}))}</b>`+
+  box.innerHTML=`<div class="ev-head"><b style="color:${S.color}">${esc(t("detail.title",{type:typeLong(ev),subject:S.name}))}</b>`+
     `<button class="ev-close" aria-label="${esc(t("close"))}">×</button></div>`+
     `<div class="ev-meta">${esc(ev.what)}${w?" · "+t("when.week",{n:w.n}):""}</div>`+
     `<dl class="ev-dl">`+rows.map(r=>`<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join("")+`</dl>`+

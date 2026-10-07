@@ -112,7 +112,7 @@
       const S=SUBJECTS[e.subject];
       const urgent=!e.noDay&&isAssessment(e)&&daysBetween(shown,e.date)<=1;
       return `<button class="n7-card ${e.type}${urgent?" urgent":""}" data-ev="${EVENTS.indexOf(e)}" style="--sc:${S.color}">`+
-        `<span class="n7-txt"><b>${esc(t("event.title",{type:typeName(e.type),subject:S.name}))}</b>`+
+        `<span class="n7-txt"><b>${esc(t("event.title",{type:typeName(e),subject:S.name}))}</b>`+
         `<em>${esc(e.noDay?eventLabel(e):e.time||eventLabel(e))}</em></span>`+
         `<span class="n7-when">${esc(whenLabel(e,shown))}</span></button>`;
     }).join("");
@@ -132,7 +132,7 @@
     box.innerHTML=`<details class="week-notes"${open?" open":""}><summary>${esc(current&&current.term===week.term&&current.n===week.n?t("week.this"):t("week.n",{n:week.n}))}`+
       `<span>${esc(count)}</span></summary>`+
       (evs.length?`<ul class="week-events">`+evs.map(e=>`<li style="--sc:${SUBJECTS[e.subject].color}"><b>${esc(e.noDay?t("week.noDay"):e.until?eventLabel(e):fmtDayShort(fromISO(e.date)))}</b>`+
-        `<span>${esc(typeName(e.type))} · ${esc(SUBJECTS[e.subject].short)} · ${esc(e.what)}</span></li>`).join("")+`</ul>`:"")+
+        `<span>${esc(typeName(e))} · ${esc(SUBJECTS[e.subject].short)} · ${esc(e.what)}</span></li>`).join("")+`</ul>`:"")+
       (advice.length?`<ul class="tight">`+advice.map(x=>`<li>${esc(x)}</li>`).join("")+`</ul>`:"")+
       `</details>`;
   }

@@ -2,11 +2,11 @@
 
 Nolan's personal organizer, set inside a living 3D universe. Today it covers the 2026/27 year at UC3M (Double Degree in Computer Engineering and Business Administration).
 
-**Live site:** <https://relentlessyunn.github.io/with-nolan/>
+**Live site:** <https://withnolan.github.io/with-nolan/>
 **Made of:** plain HTML, CSS and JavaScript — no libraries, no build step — published on GitHub Pages.
 
 > **For Claude:** read this whole file before touching anything.
-> 1. Clone the repo (`git clone https://github.com/RelentlessYunn/with-nolan`) to work on the latest published version.
+> 1. Clone the repo (`git clone https://github.com/withnolan/with-nolan`) to work on the latest published version.
 > 2. Change only the files you need.
 > 3. Bump the version (see [Publishing a version](#publishing-a-version)).
 > 4. Run the tests. They run without the PIN: never ask for it, type it or try to guess it (see [Tests](#tests)).
@@ -46,7 +46,7 @@ Nolan's personal organizer, set inside a living 3D universe. Today it covers the
 | **Faculty** (`#faculty`) | Email and office of each teacher. |
 | **Nolan** (`#nolan`) | Nolan's own section: **Día**, **Semana** and **Mes** windows with UC3M classes, his weekly routine, his plans and his own events. |
 | **Notes for Claude** (`#notes`) | Free text saved to the cloud. Claude cannot read the cloud: press *Copy notes* and paste them into the chat. |
-| **Settings** (`#settings`) | Language, smooth scrolling, **Effects** (High / Medium / Minimal) and Log out. |
+| **Settings** (`#settings`) | Language, smooth scrolling, **Effects** (High / Medium / Minimal), **Supernovas** (On / Off, and a **Supernova now** button) and Log out. |
 
 On a phone the tabs sit at the bottom and you can swipe between them. Old Spanish links (`#horario`, `#asignaturas`, `#notas`…) still work.
 
@@ -67,6 +67,7 @@ Everything the calendars show comes from **`data.js`** (for a guest: `demo.js`).
 | mark a date whose day is not known yet | that week's Saturday + `noDay:1` | `{…, date:"2026-12-05", noDay:1, label:"por confirmar"}` |
 | something open several days | add `until` | `{…, date:"2026-10-26", until:"2026-10-31"}` |
 | say what an exam covers | add `syllabus` | `syllabus:"Hasta teoría de juegos"` |
+| a test or quiz rather than an exam | add `test:1` (on `type:"ex"`) | `{…, what:"Test online 1", type:"ex", test:1}` |
 | a weekly class, or one on loose dates | `CLASSES` | see [A class](#a-class) |
 | something every week in Nolan's day and week | `ROUTINE` (`day` 0 = Monday … 6 = Sunday) | `{day:1, start:"19:00", end:"20:30", what:"Gimnasio", place:"Polideportivo", color:"#3FD9A4"}` |
 | a personal plan (Nolan's calendar only) | `PERSONAL` | `{date:"2026-10-12", what:"Cena", time:"21:00", place:"Casa", color:"#FFA640"}` |
@@ -100,6 +101,7 @@ Events added with **+** in the app are not in `data.js`: they live in the cloud 
 | Field | Meaning |
 |---|---|
 | `type` | `ex` exam · `en` submission · `cl` class or lab · `cf` clash |
+| `test:1` | on an `ex`: it is a test or quiz (an online test, a multiple-choice quiz). It is labelled **Test** instead of **Exam**, and counts as an exam everywhere else |
 | `noDay:1` | the day is unknown: use that week's Saturday; it shows as "semana N" (custom text in `label`) |
 | `until` | last day, when it lasts several days; the planner joins the days with a line |
 | `online:1` | online, so there is no "no class that day" warning |
@@ -378,7 +380,7 @@ How they are made:
 | **Vampire star** (`binary`) | a red giant pulled into a point towards a white dwarf, its gas streaming onto a disk; they orbit in 70 s and hide each other. |
 | **Antennae** | two colliding galaxies with merging cores, pink knots of new stars and two long tidal tails. The pair turns and rocks in 3D, the cores circle each other, the arms turn, clumps of stars stream out along the tails, and each knot of new stars flares and dims on its own beat. |
 
-**Now and then, a supernova** (every 3–9 minutes, Animations = All): a far star flares blue-white. Its **blast wave** comes straight at us at a steady speed, so — like a real explosion seen from afar — it creeps out of the star for about 20 s, then in its last second rushes over the whole sky (`waveAt()`: a sphere of radius x at distance 1 looks x/√(1−x²) wide). It leaves the screen at its farthest corner the moment it reaches us (24 s): a white flash, and the sky shakes (not with animations turned down). Then the star fades through yellow and red and leaves a small ragged shell. `Wonders.nova(x, y, age)` sets one off (tests).
+**Now and then, a supernova** (every 3–9 minutes, Animations = All; Settings → **Supernovas** turns them off, `SETTINGS.nova`): a far star flares blue-white. Its **blast wave** comes straight at us at a steady speed, so — like a real explosion seen from afar — it creeps out of the star for about 20 s, then in its last second rushes over the whole sky (`waveAt()`: a sphere of radius x at distance 1 looks x/√(1−x²) wide), with a soft violet glow of ionised gas behind its front. It leaves the screen at its farthest corner the moment it reaches us (24 s). **No two are alike:** each draws its own look (`v` in `spawnNova`: how purple, how thick and ragged its shell, how bright its flash, how hard its push), and its passing depends on where the star is: the flash spreads from the star's side of the screen and is brightest there, clumps of hot gas rush past outwards from it, it cools to orange or violet, and the sky is pushed away from the star as it shakes (not with animations turned down). Then the star fades through yellow and red and leaves a small ragged shell. **Supernova now** in Settings (`Wonders.boom()`) sets a quick one off (its approach three times faster, `sp`) and shows just the sky to watch it; `Wonders.nova(x, y, age)` sets one off (tests).
 
 ### The Earth and the Moon
 
@@ -490,7 +492,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.84**. In `index.html`, bump the footer (`v0.84`; the entry screen copies it) and every `?v=0.84`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.85**. In `index.html`, bump the footer (`v0.85`; the entry screen copies it) and every `?v=0.85`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -501,7 +503,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **134 checks** in a real browser (138 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **136 checks** in a real browser (140 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -527,6 +529,8 @@ What they cover:
 | Home and settings | the window, just the sky, Nolan, the reload fade, English, every text translated, the animation levels |
 | Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders, a supernova, Quality Low and Medium, Effects, the constellation |
 | Other | compact header, swipe, idle, offline (opens and keeps a tick made offline) |
+
+**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
 
 **Add a test whenever you fix a bug.**
 

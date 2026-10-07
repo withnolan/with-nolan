@@ -66,9 +66,9 @@ function makePlanner(box,{detail="planner-detail",events=EVENTS,personal=[],mine
     if(!e.subject) return `<button class="m-chip personal${e.own?" own":""}${ends}" data-pe="${extra.indexOf(e)}" style="--sc:${colorOf(e)}" `+
       `aria-label="${esc(e.what+(e.time?", "+e.time:"")+(closing?", "+t("planner.closes"):""))}"><i></i><span>${esc(closing?t("planner.closes"):e.what)}</span></button>`;
     const S=SUBJECTS[e.subject];
-    const label=t("event.title",{type:typeName(e.type),subject:S.name})+(e.noDay?", "+t("event.noDay"):"")+(closing?", "+t("planner.closes"):"");
+    const label=t("event.title",{type:typeName(e),subject:S.name})+(e.noDay?", "+t("event.noDay"):"")+(closing?", "+t("planner.closes"):"");
     return `<button class="m-chip ${e.type}${e.noDay?" tbd":""}${ends}" data-ev="${EVENTS.indexOf(e)}" style="--sc:${S.color}" `+
-      `aria-label="${esc(label)}"><i></i><span>${esc(S.short)} · ${esc(closing?t("planner.closes"):typeName(e.type))}</span></button>`;
+      `aria-label="${esc(label)}"><i></i><span>${esc(S.short)} · ${esc(closing?t("planner.closes"):typeName(e))}</span></button>`;
   };
   /* windows of several days (an online test, a trip…): a line in its colour joins the opening chip
      to the closing one, across the days in between. They go first in each day so the lines line up. */

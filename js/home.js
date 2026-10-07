@@ -32,7 +32,7 @@ const Home=(function(){
     const cls=next?t(classState(next,m)==="now"?"home.now":"home.next",{subject:SUBJECTS[next.subject].name,time:hhmm(next.start),room:next.room})
       :cs.length?t("home.doneToday"):(noClassReason(k)||{text:t("home.noClassToday")}).text.replace(/\.$/,"");
     const ex=EVENTS.filter(e=>isAssessment(e)&&lastDay(e)>=k).sort(byDate)[0];
-    const exam=ex?t("home.nextExam",{type:typeName(ex.type),subject:SUBJECTS[ex.subject].short,when:whenLabel(ex,k)}):"";
+    const exam=ex?t("home.nextExam",{type:typeName(ex),subject:SUBJECTS[ex.subject].short,when:whenLabel(ex,k)}):"";
     const w=weekOf(k);
     putHtml($("#homeUc3mInfo"),(w?`<i>${esc(t("header.week",{n:w.n}))}</i>`:"")+`<span>${esc(cls)}</span>`+(exam?`<span>${esc(exam)}</span>`:""));
   }

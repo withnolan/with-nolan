@@ -47,7 +47,7 @@ function buildICS(events=icsEvents(), now=new Date()){
     "CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:"+icsText(t("ics.calName")),"X-WR-TIMEZONE:Europe/Madrid",...ICS_TZ];
   events.forEach(e=>{
     const S=SUBJECTS[e.subject], span=e.until?null:icsSpan(e.time);
-    const title=typeName(e.type)+" · "+S.name+": "+e.what;
+    const title=typeName(e)+" · "+S.name+": "+e.what;
     const info=[[t("detail.weight"),e.weight]];
     if(e.time&&!span) info.push([t("detail.when"),e.time]);
     if(e.format) info.push([t("detail.format"),e.format]);
@@ -59,7 +59,7 @@ function buildICS(events=icsEvents(), now=new Date()){
     else lines.push("DTSTART;VALUE=DATE:"+icsDay(e.date),"DTEND;VALUE=DATE:"+icsDay(addDays(lastDay(e),1)));
     lines.push("SUMMARY:"+icsText(title),
       "DESCRIPTION:"+icsText(info.filter(r=>r[1]).map(r=>r[0]+": "+r[1]).join("\n")),
-      "CATEGORIES:"+icsText(typeName(e.type)));
+      "CATEGORIES:"+icsText(typeName(e)));
     if(e.room) lines.push("LOCATION:"+icsText(e.room+(S.campus?" · "+campusOf(e.subject):"")));
     if(!span) lines.push("TRANSP:TRANSPARENT");
     /* the day before at 9:00 (all-day) or 24 h before, plus one hour before a timed one;

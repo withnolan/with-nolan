@@ -13,16 +13,21 @@
      options:Object.keys(LOOKS).map(v=>[v,t("s.set.look."+v)])},
     /* the mouse wheel glides (smooth.js); no reload needed */
     {key:"scroll",label:"s.set.scroll", help:"s.set.scrollHelp",
-     options:[["smooth",t("s.set.scroll.smooth")],["native",t("s.set.scroll.native")]]}
+     options:[["smooth",t("s.set.scroll.smooth")],["native",t("s.set.scroll.native")]]},
+    /* supernovas on their own now and then (wonders.js); only with the 3D universe, no reload needed. Its
+       button sets a quick one off at once and leaves just the sky to watch it */
+    {key:"nova",  label:"s.set.nova",   help:"s.set.novaHelp", cls:"set-nova", extra:"nova",
+     options:[["on",t("s.set.nova.on")],["off",t("s.set.nova.off")]]}
   ];
   const current=k=>k==="look"?currentLook():SETTINGS[k];
   function render(){
-    box.innerHTML=ROWS.map(r=>`<div class="set-row"><div class="set-txt"><b id="set-${r.key}">${esc(t(r.label))}</b>`+
+    box.innerHTML=ROWS.map(r=>`<div class="set-row${r.cls?" "+r.cls:""}"><div class="set-txt"><b id="set-${r.key}">${esc(t(r.label))}</b>`+
       `<p>${esc(t(r.help))}</p></div>`+
       `<div class="seg" role="radiogroup" aria-labelledby="set-${r.key}" data-key="${r.key}">`+
       r.options.map(o=>`<button type="button" role="radio" data-value="${o[0]}" aria-checked="${current(r.key)===o[0]}"`+
         `${o[0]==="es"||o[0]==="en"?` lang="${o[0]}"`:""}>${esc(o[1])}</button>`).join("")+
-      `</div></div>`).join("")+
+      `</div>`+(r.extra==="nova"?`<button type="button" class="nova-btn" id="novaNow">${esc(t("s.set.novaNow"))}</button>`:"")+
+      `</div>`).join("")+
       `<p class="set-note">${esc(t("s.set.reload"))}</p>`+
       /* Log out: this device forgets the PIN and the PIN screen comes back (a guest: leaves
          guest mode, back to that screen; css shows the words that fit, cinema.css) */
@@ -32,6 +37,7 @@
   }
   box.addEventListener("click",ev=>{
     if(ev.target.closest("#logout")){ Gate.lock(); return; }
+    if(ev.target.closest("#novaNow")){ if(typeof Wonders!=="undefined"&&Wonders.boom()) View.show(); return; }
     const b=ev.target.closest(".seg button"); if(!b) return;
     const key=b.parentNode.dataset.key;
     b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-checked",String(x===b)));
