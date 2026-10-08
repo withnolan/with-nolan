@@ -138,18 +138,26 @@
   }
 
   /* ---------- subject card under the list (the same as in Subjects) ---------- */
+  /* its grades are copied from the main card, which is where they are edited: again whenever those change
+     (the cloud arriving after the card was opened, or another device), so it never shows old ones */
+  function copyGrades(){
+    const box=$("#subjectPeek"), k=box.dataset.k; if(!k||box.hidden&&!box.innerHTML) return;
+    box.querySelectorAll('.g-input[data-scope="peek"]').forEach(inp=>{
+      const source=document.getElementById(inp.id.replace("g_peek_","g_main_"));
+      if(source&&inp.value!==source.value) inp.value=source.value;
+    });
+    recalc(k,"peek");
+  }
+  /* (subjects.js fills the main card in its own listener, after this one: hence the wait) */
+  Cloud.onLoad(()=>setTimeout(copyGrades,0));
+  document.addEventListener("input",e=>{ if(e.target.matches('.g-input[data-scope="main"]')) copyGrades(); });
   function peek(k){
     const box=$("#subjectPeek");
     if(box.dataset.k===k && !box.hidden){ box.hidden=true; box.dataset.k=""; return; }
     box.dataset.k=k;
     box.innerHTML=`<button class="ev-close peek-x" aria-label="${esc(t("today.closeCard"))}">×</button>`+
       subjectCard(k,{accordion:false, scope:"peek", editable:false});
-    /* grades are copied from the main card, which is where they are edited */
-    box.querySelectorAll('.g-input[data-scope="peek"]').forEach(inp=>{
-      const source=document.getElementById(inp.id.replace("g_peek_","g_main_"));
-      if(source) inp.value=source.value;
-    });
-    recalc(k,"peek");
+    copyGrades();
     const calc=box.querySelector(".calc");
     if(calc) calc.insertAdjacentHTML("beforeend",`<div class="calc-ro">${t("today.gradesEditedIn")}</div>`);
     box.hidden=false;

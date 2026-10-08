@@ -5,7 +5,7 @@
    makePlanner(box, {detail, events, personal, mine, where}) draws one:
    UC3M's (its own tab) and Nolan's (#nolan: every UC3M event, PERSONAL from
    data.js, and all of your own).
-   Your own events: each calendar has a "+" button (and a tap on a day) that
+   Your own events: each calendar has a "+ Add" button (top right) that
    adds one; tap it to see it, change it or delete it. They live in MyEvents.
    ========================================================== */
 
@@ -190,15 +190,12 @@ function makePlanner(box,{detail="planner-detail",events=EVENTS,personal=[],mine
       const inMonth=indexOf(today)===current;
       showForm({date:inMonth?today:isoDate(new Date(mo.y,mo.m,1))}); return;
     }
-    /* a tap on an empty spot of a day of this month: a new event on that day */
-    const day=ev.target.closest(".m-day[data-day]");
-    if(day&&!ev.target.closest(".m-link")){ showForm({date:day.dataset.day}); return; }
     const b=ev.target.closest("[data-go]"); if(!b) return;
     if(b.dataset.go==="today") current=indexOf(todayISO());
     else { const n=current+(+b.dataset.go); if(n<0||n>=months.length) return; current=n; }
     render();
   });
-  closeDetailOn(detail,".m-chip,.m-add,.m-day[data-day]");
+  closeDetailOn(detail,".m-chip,.m-add");
   MyEvents.onChange(render);
   /* at midnight the today box and the yellow move on; if you were on today's month, it follows */
   document.addEventListener("newDay",e=>{

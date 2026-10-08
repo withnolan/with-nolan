@@ -183,7 +183,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   {
     const p=await open(b);
     ok(await p.evaluate(()=>!document.getElementById("portal").hidden),"the app starts at home");
-    await p.waitForTimeout(3500); await p.click("#homeUc3m"); await p.waitForTimeout(1200);
+    /* (the opening flight ends first: waited for, not timed) */
+    await p.waitForFunction(()=>Universe.scene()==="home"&&!Universe.busy(),null,{timeout:15000}).catch(()=>{});
+    await p.click("#homeUc3m"); await p.waitForTimeout(1200);
     ok(await p.evaluate(()=>Universe.busy()&&Universe.scene()==="uc3m"),"UC3M: the camera flies to the UC3M galaxy");
     /* (a slow software graphics card can stretch the flight: wait for it to land, not a fixed time) */
     await p.waitForFunction(()=>document.getElementById("portal").hidden&&!Universe.busy(),null,{timeout:10000}).catch(()=>{});
@@ -376,9 +378,11 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     /* (the first retry comes 2 s after the failure; waited for, not timed, so a slow machine does not fail it) */
     await p.waitForFunction(()=>document.getElementById("notesText").value==="old notes",null,{timeout:9000}).catch(()=>{});
     ok(await p.inputValue("#notesText")==="old notes","after retrying the saved notes appear");
-    await p.goto(PAGE+"#subjects"); await p.waitForTimeout(2500);
+    await p.goto(PAGE+"#subjects");
+    await p.waitForFunction(()=>Cloud.ready()&&!!document.querySelector('.g-input[data-scope=main][data-subj=ed]'),null,{timeout:12000}).catch(()=>{});
     const inp=p.locator('.g-input[data-scope=main][data-subj=ed]').nth(1);
-    await inp.fill("7,5"); await inp.press("Tab"); await p.waitForTimeout(1500);
+    await inp.fill("7,5"); await inp.press("Tab");
+    await p.waitForFunction(()=>/Acumulado: 3.63/.test(document.getElementById("res-main-ed").textContent),null,{timeout:4000}).catch(()=>{});
     ok(/Acumulado: 3.63/.test(await p.textContent("#res-main-ed")),"a grade with a comma (7,5) counts as 7.5");
     await p.context().close();
   }
@@ -392,7 +396,8 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       window.__pops=[]; addEventListener("animationstart",e=>{ if(e.target.matches&&e.target.matches(".checkitem input")) window.__pops.push(e.target.id); },true); }});
     const r=await p.evaluate(()=>({notes:document.getElementById("notesText").value,ro:document.getElementById("notesText").readOnly}));
     ok(r.notes==="old"&&r.ro,`before the cloud answers, this device's copy is already on screen (notes read-only until then) (${JSON.stringify(r)})`);
-    await p.waitForTimeout(3500);
+    /* (the slow cloud answers after 2.5 s: wait for the fresh copy, then a moment for any pop that would follow) */
+    await p.waitForFunction(()=>!document.getElementById("notesText").readOnly,null,{timeout:12000}).catch(()=>{}); await p.waitForTimeout(500);
     const f=await p.evaluate(()=>({ro:document.getElementById("notesText").readOnly,ticks:document.querySelectorAll("#subjectTasks input:checked, #generalTasks input:checked").length,
       pops:window.__pops,on:document.querySelectorAll("#tasksConstellation .c-star.on").length,born:document.querySelectorAll("#tasksConstellation .c-star.fresh").length}));
     ok(!f.ro&&f.ticks===2&&!f.pops.length&&f.on===2&&!f.born,`then the fresh copy takes over: its ticks arrive without popping and no star is born by itself (${JSON.stringify(f)})`);
@@ -413,6 +418,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const r=await p.evaluate(()=>({opens:document.querySelectorAll("#planner-grid .m-chip.opens").length,
       closes:document.querySelectorAll("#planner-grid .m-chip.closing").length,links:document.querySelectorAll("#planner-grid .m-link").length}));
     ok(r.opens===1&&r.closes===1&&r.links===4,`a window of several days (26–31 Oct) is joined by a line (${r.links} days in between)`);
+    /* tapping a day only looks: adding is the "+ Add" button's job alone */
+    await p.click('#planner-grid .m-day[data-day="2026-10-14"] .m-date'); await p.waitForTimeout(200);
+    ok(await p.evaluate(()=>{ const d=document.getElementById("planner-detail"); return !d||d.hidden||!d.querySelector("form"); }),"tapping a day does not open the form to add an event");
     /* your own event: + opens the form, it is saved and shown (and kept), then deleted with two taps */
     await p.click("#planner-grid .m-add"); await p.fill("#planner-detail [name=what]","Cena de prueba");
     await p.fill("#planner-detail [name=date]","2026-10-22"); await p.click("#planner-detail .ev-btn.main");
@@ -708,7 +716,8 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       &&LOOKS.high.motion==="full"&&LOOKS.high.quality==="high"&&LOOKS.medium.quality==="medium"&&LOOKS.low.motion==="none"&&LOOKS.low.quality==="low"),
       "Effects offers three levels (High, Medium, Minimal), each setting animations and quality together");
     /* Medium: each section is a star; opening one flies into it, quicker than the 3D flight */
-    await md.goto(PAGE+"#home"); await md.waitForTimeout(3500);
+    await md.goto(PAGE+"#home");
+    await md.waitForFunction(()=>Universe.scene()==="home"&&!Universe.busy(),null,{timeout:15000}).catch(()=>{});
     await md.click("#homeUc3m"); await md.waitForTimeout(300);
     const fly=await md.evaluate(()=>({busy:Universe.busy(),stars:!!window.Stars,scene:Stars.scene()}));
     await md.waitForFunction(()=>location.hash==="#schedule"&&!Universe.busy(),null,{timeout:5000}).catch(()=>{});

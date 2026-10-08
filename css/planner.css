@@ -131,7 +131,6 @@
 .m-add b{font-size:1.05rem;line-height:1;font-weight:800}
 @media (hover:hover){.m-add:hover{filter:brightness(1.08);transform:translateY(-1px)}}
 .m-add:active{transform:scale(.94)}
-.m-day[data-day]{cursor:cell}
 .m-chip.own i{box-shadow:0 0 0 2px color-mix(in srgb,var(--sc) 35%,transparent)}
 .ev-note{margin-top:10px!important}
 .ev-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}

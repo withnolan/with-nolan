@@ -39,7 +39,7 @@ Nolan's personal organizer, set inside a living 3D universe. Today it covers the
 | **Home** (`#home`) | Where the app starts: the time, a greeting and the weather where you are. Further down, the sections **UC3M** and **Nolan**, and **Start the journey** through the sights of the universe. |
 | **Sights** (`#earth`, `#moon`, `#blackhole`, `#whirlpool`, `#ringgalaxy`, `#edgeon`, `#orion`, `#pleiades`, `#ring`, `#binary`, `#antennae`) | The camera flies to each one and frames it, with its name, a few words and a dock to go to the others. |
 | **Schedule** (`#schedule`) | *Today* (the day's classes, the red "now" line, "X min left"), the next 7 days, and the weekly timetable. Tap a class to see all its dates in a small pop-up. |
-| **Month** (`#planner`) | The whole year's monthly planner. **+ Add** (or tap a day) adds an event of your own. |
+| **Month** (`#planner`) | The whole year's monthly planner. **+ Add** (top right) adds an event of your own. |
 | **Subjects** (`#subjects`) | One card per subject: timetable, faculty, grading with a grade calculator, dates and syllabus progress. |
 | **Exams** (`#exams`) | Everything graded, with filters. **Add to my calendar** downloads an `.ics` file for the phone's calendar. |
 | **Tasks** (`#tasks`) | Tasks per subject and general ones, saved to the cloud. |
@@ -133,7 +133,7 @@ Only `date` and `what` are required; `until`, `time`, `place`, `note` and `color
 
 ### Your own events (from the app)
 
-Nothing to edit. Each calendar has **+ Add** (or tap an empty spot of a day) with a small form. Events can be changed or deleted from their detail (deleting asks for a second tap). They live in `MyEvents` (`planner.js`):
+Nothing to edit. Each calendar has **+ Add** at the top right, with a small form (tapping a day adds nothing). Events can be changed or deleted from their detail (deleting asks for a second tap). They live in `MyEvents` (`planner.js`):
 
 | Who | Where they are kept |
 |---|---|
@@ -492,7 +492,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.86**. In `index.html`, bump the footer (`v0.86`; the entry screen copies it) and every `?v=0.86`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.87**. In `index.html`, bump the footer (`v0.87`; the entry screen copies it) and every `?v=0.87`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -538,13 +538,10 @@ What they cover:
 
 ## Known issues (for the next session)
 
-Found while reviewing the code (v0.86) and left for later. Pick up from here.
+Left for later. Pick up from here.
 
-1. **`pruebas/pruebas.js`** is the old Spanish test suite, replaced by `tests/run.js`. Nothing uses it. Ask the owner before deleting it.
-2. **Cloud, leaving the app** (`flushOnExit` in `cloud.js`): it writes the last copy plus your changes without reading again first, so a change made on another device in those few seconds could be overwritten. Changing how the cloud saves needs the owner's OK first.
-3. **Today's subject card** (`peek` in `today.js`) copies the grades when it opens: if the cloud arrives afterwards, that open card still shows the old grades until it is opened again.
-4. **Tests that still wait a fixed time** (`tests/run.js`): the wait before clicking UC3M at the start (3.5 s), the grades in Subjects (2.5 s / 1.5 s) and the Quality = Medium flight (3.5 s). Each should wait for what it checks (`waitForFunction`), as the tab pill, the compact header, the settings fade and the flights home already do since v0.86.
-5. In v0.86 only Loading, Tabs, Today, Planner, Settings and Compact header were run (all green). PIN and start and Home were not run after the flight-wait changes in `tests/run.js`: run them next time.
+1. **Cloud, leaving the app** (`flushOnExit` in `cloud.js`): it writes the last copy plus your changes without reading again first, so a change made on another device in those few seconds could be overwritten. Proposed fix: when hidden, save the normal way (read first); when closing, write only over a copy read in the last 30 s, else leave the changes on the device for the next opening. **Needs the owner's OK** (it changes how the cloud saves).
+2. v0.87 changed the waits of the slow test sections (PIN and start, Astral, Cloud): Cloud passes; check PIN and start and Astral on the next full run.
 
 ---
 
