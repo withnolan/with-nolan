@@ -6,7 +6,8 @@
    · Saves are CHANGES (this task done, this grade) applied to a fresh re-read,
      so nothing you didn't touch — or another device changed — is overwritten.
    · Writes go one after another.
-   · Pending changes are flushed when the app is hidden or closed.
+   · Pending changes are saved when the app is hidden (read first); when it closes, only over a
+     copy read in the last 30 s, else they wait on the device for the next opening.
    · Offline: the last copy read is kept on this device (localStorage), so the
      page shows your ticks, grades and notes without a connection; changes
      made meanwhile are kept on the device too (as small descriptions, OPS
@@ -24,7 +25,7 @@ const Cloud=(function(){
   const cfg=window.CONFIG||{}, ID=cfg.BIN_ID||"", KEY=cfg.API_KEY||"";
   const URL_BIN="https://api.jsonbin.io/v3/b/"+ID;
   const enabled=!!(ID&&KEY);
-  let record=null, ready=false, retry=2000, timer=null, hiddenSince=0;
+  let record=null, ready=false, retry=2000, timer=null, hiddenSince=0, readAt=0;
   let queue=Promise.resolve();
   const pending=new Map();          /* key → function that applies the change to a record */
   const listeners=[];
@@ -52,7 +53,9 @@ const Cloud=(function(){
   async function read(){
     const r=await fetch(URL_BIN+"/latest",{headers,cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
-    return (await r.json()).record||{};
+    const rec=(await r.json()).record||{};
+    readAt=Date.now();
+    return rec;
   }
   /* what was read plus what is still queued: that is what the screen must show.
      info.copy: it is only this device's last copy, shown while the fresh one is read */
@@ -109,16 +112,18 @@ const Cloud=(function(){
     });
     return queue;
   }
-  /* when the app is hidden or closed there is no time to re-read: write over the last copy */
+  /* closing: no time to re-read, so it writes over the last copy, but only if it is under 30 s old;
+     otherwise another device may have changed something since, so the changes wait on this device
+     (kept) and go up the next time the app opens */
   function flushOnExit(){
-    if(!ready||!pending.size||!record) return;
+    if(!ready||!pending.size||!record||Date.now()-readAt>30000) return;
     const rec=view(record);
     try{
       fetch(URL_BIN,{method:"PUT",keepalive:true,headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify(rec)});
     }catch(e){}
   }
   document.addEventListener("visibilitychange",()=>{
-    if(document.hidden){ hiddenSince=Date.now(); flushOnExit(); }
+    if(document.hidden){ hiddenSince=Date.now(); clearTimeout(timer); write(); }   /* hidden: a normal save, read first */
     else if(ready&&Date.now()-hiddenSince>60000) refresh();
   });
   window.addEventListener("pagehide",flushOnExit);

@@ -281,7 +281,7 @@ For showing the site (a portfolio). **Guest** (`#gateGuest`, or a `?guest` link)
 - **This device's last copy shows at once** while the fresh one is read; the fresh read only changes what changed. Listeners get `(rec, {copy:true})` for that copy (`Cloud.onLoad`). Notes can be typed in only once the fresh read arrives.
 - Nothing is written until the first read succeeds. It retries by itself; changes wait in a queue.
 - It saves **by changes** ("this task done") on top of a fresh read, so it never overwrites what you did not touch.
-- Pending changes are flushed when the app is hidden or closed; it reads again when you come back after a while.
+- Pending changes are saved when the app is hidden (reading first) and, on closing, only over a copy read in the last 30 s; otherwise they wait on the device for the next opening. It reads again when you come back after a while.
 - Settings are not in the cloud: they are per device (`localStorage`, key `settings`).
 
 ### Offline
@@ -492,7 +492,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.87**. In `index.html`, bump the footer (`v0.87`; the entry screen copies it) and every `?v=0.87`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.88**. In `index.html`, bump the footer (`v0.88`; the entry screen copies it) and every `?v=0.88`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -540,8 +540,7 @@ What they cover:
 
 Left for later. Pick up from here.
 
-1. **Cloud, leaving the app** (`flushOnExit` in `cloud.js`): it writes the last copy plus your changes without reading again first, so a change made on another device in those few seconds could be overwritten. Proposed fix: when hidden, save the normal way (read first); when closing, write only over a copy read in the last 30 s, else leave the changes on the device for the next opening. **Needs the owner's OK** (it changes how the cloud saves).
-2. v0.87 changed the waits of the slow test sections (PIN and start, Astral, Cloud): Cloud passes; check PIN and start and Astral on the next full run.
+1. v0.87 changed the waits of the slow test sections (PIN and start, Astral, Cloud): Cloud passes; check PIN and start and Astral on the next full run.
 
 ---
 
