@@ -68,6 +68,7 @@ Everything the calendars show comes from **`data.js`** (for a guest: `demo.js`).
 | something open several days | add `until` | `{…, date:"2026-10-26", until:"2026-10-31"}` |
 | say what an exam covers | add `syllabus` | `syllabus:"Hasta teoría de juegos"` |
 | a test or quiz rather than an exam | add `test:1` (on `type:"ex"`) | `{…, what:"Test online 1", type:"ex", test:1}` |
+| a make-up class (recuperación) confirmed by email | its `EVENTS` line: real `date` and `time`, drop `noDay`/`label`, `room` "Online…" | `{subject:"eco", date:"2026-10-16", online:1, what:"Recuperación…", type:"cl", time:"12:30–14:00"}` |
 | a weekly class, or one on loose dates | `CLASSES` | see [A class](#a-class) |
 | something every week in Nolan's day and week | `ROUTINE` (`day` 0 = Monday … 6 = Sunday) | `{day:1, start:"19:00", end:"20:30", what:"Gimnasio", place:"Polideportivo", color:"#3FD9A4"}` |
 | a personal plan (Nolan's calendar only) | `PERSONAL` | `{date:"2026-10-12", what:"Cena", time:"21:00", place:"Casa", color:"#FFA640"}` |
@@ -492,7 +493,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.88**. In `index.html`, bump the footer (`v0.88`; the entry screen copies it) and every `?v=0.88`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.89**. In `index.html`, bump the footer (`v0.89`; the entry screen copies it) and every `?v=0.89`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---

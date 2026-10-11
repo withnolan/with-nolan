@@ -76,7 +76,7 @@ const EVENTS=[
  {subject:"ed", date:"2026-10-15", what:"Primer parcial: bloque 1, ítems 1 a 5. En el horario y aula de los jueves", weight:"25 %", type:"ex", time:"09:00–10:30", room:"Aula 2.3.C01", format:"Presencial y escrito. Asignatura nueva: no hay exámenes de otros años. Para prepararlo: el simulacro de la clase extra del 5 de octubre (en Aula Global), transparencias, retos con soluciones, quizzes de Genially y VisuAlgo"},
  {subject:"is", date:"2026-10-16", what:"Práctica en aula", weight:"clase", type:"cl", time:"12:30–14:00", room:"Aula 4.1.E06"},
  {subject:"ec", date:"2026-10-22", what:"Laboratorio 2 y entrega de la Práctica 1", weight:"entrega", type:"en", time:"14:00–15:30", room:"INF 7.0.J04 y 7.0.J05", format:"Individual o en pareja (hay un foro en Aula Global para buscar compañero). fill_puzzle devuelve 1 si se puede rellenar y 0 si alguna coordenada de V está fuera de rango: rellena hasta la primera fuera de rango y para, sin borrar lo ya puesto"},
- {subject:"eco", date:"2026-10-16", noDay:1, label:"viernes por confirmar", online:1, what:"Recuperación online de la magistral del lunes 12 de octubre, festivo", weight:"clase", type:"cl", time:"Por confirmar", format:"Online, en sustitución de la clase perdida"},
+ {subject:"eco", date:"2026-10-16", online:1, what:"Recuperación online de la magistral del lunes 12 de octubre, festivo", weight:"clase", type:"cl", time:"12:30–14:00", room:"Online · sala virtual de Aula Global", format:"Online, en sustitución de la clase perdida. Si no puedes asistir: tema 8 del libro Core-Econ"},
  {subject:"eco", date:"2026-11-06", noDay:1, label:"viernes por confirmar", online:1, what:"Recuperación online de la magistral del lunes 2 de noviembre, festivo", weight:"clase", type:"cl", time:"Por confirmar", format:"Online, en sustitución de la clase perdida"},
  {subject:"eco", date:"2026-12-11", noDay:1, label:"viernes por confirmar", online:1, what:"Recuperación online de la magistral del lunes 7 de diciembre, festivo", weight:"clase", type:"cl", time:"Por confirmar", format:"Online, en sustitución de la clase perdida"},
  {subject:"eco", date:"2026-10-26", until:"2026-10-31", online:1, what:"Test online 1 en Aula Global", weight:"8 % final", type:"ex", test:1, time:"Abre lunes 9:00, cierra sábado 14:00", format:"10 preguntas, intentos ilimitados de 8 min 30, cuenta el mejor"},
@@ -195,7 +195,7 @@ const TASKS={
  talf:[],
  is:[["Repasar cada tema justo después de clase","Hay hasta 10 ejercicios individuales en clase (SE4, 20 %), a mano, sin avisar la semana, sobre lo que se acaba de explicar."]],
  ec:[["Instalar WepSIM y CREATOR antes del laboratorio 1","El jueves 24 a las 14:00 en INF 7.0.J04. Llega con el entorno montado."]],
- eco:[["Confirmar los viernes de recuperación","Tres magistrales caen en lunes festivo (12 oct, 2 nov y 7 dic) y se recuperan online un viernes. Pregunta las fechas."]],
+ eco:[["Confirmar los viernes de recuperación","Tres magistrales caen en lunes festivo (12 oct, 2 nov y 7 dic) y se recuperan online un viernes. La del 12 oct ya está: viernes 16, 12:30. Faltan las del 2 nov y 7 dic."]],
  dcp:[],
  est:[]
 };
