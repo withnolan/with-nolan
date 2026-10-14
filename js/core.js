@@ -11,6 +11,14 @@ const $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 /* Nolan's logo (the N between four stars), for the buttons that take you home */
 const LOGO_SVG=`<svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="lm-line" d="M17 47V17L47 47V17"/><circle cx="17" cy="47" r="3.2"/><circle cx="17" cy="17" r="3.2"/><circle cx="47" cy="47" r="3.2"/><circle cx="47" cy="17" r="3.2"/></svg>`;
+/* the Nolan section's own mark: its amber elliptical galaxy (tilted rings round a bright core, a few
+   stars around), drawn with the .p-ic icon classes (stroke = currentColor, .f2 / .core / .dot fills) */
+const NOLAN_SVG=`<svg class="i-nolan" viewBox="0 0 48 48" aria-hidden="true">`+
+  `<ellipse class="haze" cx="24" cy="24" rx="20" ry="10.5" transform="rotate(-24 24 24)"/>`+
+  `<ellipse cx="24" cy="24" rx="14.5" ry="7.4" transform="rotate(-24 24 24)"/>`+
+  `<ellipse class="f2" cx="24" cy="24" rx="8" ry="4.6" transform="rotate(-24 24 24)"/>`+
+  `<circle class="core" cx="24" cy="24" r="2.6"/>`+
+  `<circle class="dot" cx="40.5" cy="9.5" r="1.3"/><circle class="dot" cx="7.5" cy="37" r="1"/><circle class="dot" cx="38" cy="38.5" r=".8"/></svg>`;
 /* stable id from a title: "Instalar WepSIM y CREATOR" → "instalar-wepsim-y-creator" */
 const slug=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()
   .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48);
