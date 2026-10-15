@@ -181,6 +181,47 @@ html:not([data-motion=full]) .ts-moon,html:not([data-motion=full]) .ts-go::befor
 @media (max-height:620px){.p-sight-view .s-text,.p-sight-view .s-step{display:none}.p-sight-view h2{font-size:1.4rem}
   .portal[data-view=sight] .p-in{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}}
 
+/* ---------- Spending (#spending), at the black hole: coming soon ----------
+   like a sight: the hero steps aside and the words sit low over a shade, the black hole above; the way home on top */
+.i-spend .coin{stroke:#FFD27A;fill:rgba(255,210,122,.18);filter:drop-shadow(0 0 3px rgba(255,200,110,.7))}
+.i-spend .coin .in{fill:none;stroke-width:1.3;opacity:.8}
+.i-spend .trail{stroke:#FFD27A;stroke-width:1.5;opacity:.55;stroke-dasharray:2 2.6}
+.portal[data-view=spending] .p-top{display:none}
+.portal[data-view=spending] .p-in{justify-content:flex-end;padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
+.portal[data-view=spending]::before{
+  content:"";position:fixed;left:0;right:0;bottom:0;height:62vh;z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(2,3,6,.9),rgba(2,3,6,.5) 50%,transparent);
+}
+.p-spending{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;max-width:720px;margin:0 auto;color:var(--ink)}
+.portal .sp-back{position:fixed;z-index:4;top:calc(8px + env(safe-area-inset-top,0px));left:10px}
+.portal:not([data-view=spending]) .sp-back{display:none}
+.p-spending .s-fact{margin:0;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#FFB8E6;text-shadow:0 1px 10px #000}
+.p-spending h2{margin:0;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;letter-spacing:-.035em;line-height:1.1;text-shadow:0 2px 20px #000;
+  background:linear-gradient(92deg,#fff 30%,#FFC2EA 70%,#FFD27A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.p-spending .s-text{margin:2px 0 6px;color:var(--ink-2);font-size:.92rem;line-height:1.55;max-width:56ch;text-shadow:0 1px 12px #000}
+.sp-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-top:6px}
+/* each tile: what will be there, greyed out (not yet usable) behind a thin rim of the hole's light */
+.sp-tile{
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;border-radius:18px;text-align:left;
+  background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.01)),rgba(8,9,14,.7);
+  border:1px solid rgba(255,138,216,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  filter:saturate(.35);opacity:.72;cursor:not-allowed;
+}
+.sp-tile svg{width:22px;height:22px;margin-bottom:4px;fill:none;stroke:#FFB8E6;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp-name{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#A8ADBC}
+.sp-tile b{font-size:1.5rem;font-weight:300;letter-spacing:-.02em;color:#E8EAF1;font-variant-numeric:tabular-nums}
+.sp-tile small{font-size:.76rem;color:#80869A;line-height:1.35}
+.sp-soon{display:inline-flex;align-items:center;gap:8px;margin:10px 0 0;padding:6px 14px 6px 11px;border-radius:99px;
+  font-size:.78rem;font-weight:700;color:#FFD9F1;background:rgba(255,138,216,.1);border:1px solid rgba(255,138,216,.3)}
+.sp-soon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:620px){
+  .sp-tiles{grid-template-columns:1fr;gap:8px}
+  .sp-tile{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:2px 12px;padding:11px 14px}
+  .sp-tile svg{grid-row:1/3;margin:0}
+  .sp-tile b{grid-row:1/3;grid-column:3;font-size:1.2rem}
+  .p-spending .s-text{font-size:.86rem}
+}
+
 /* ---------- the tour's dock: every place (the one you are at lit), the one before and after, and home ---------- */
 .tour{
   position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:3;

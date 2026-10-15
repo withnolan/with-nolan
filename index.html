@@ -22,7 +22,7 @@
   /* ?guest in the address (a link to share) makes it a guest visit too */
   var k=null, g=null; try{ k=localStorage.getItem("nolan-device"); g=sessionStorage.getItem("nolan-guest"); if(/[?&]guest\b/.test(location.search)){ g="1"; sessionStorage.setItem("nolan-guest","1"); } }catch(e){ if(/[?&]guest\b/.test(location.search)) g="1"; }
   if(g) d.setAttribute("data-guest","");
-  else if(k!=="f9d8f1cd96a7b5ffd4c1f01c7f5f0a7c00940726b33625b4755a1d4f25a91f20") d.setAttribute("data-locked","");
+  else if(k!=="f9d8f1cd96a7b5ffd4c1f01c7f5f0a7c0.950726b33625b4755a1d4f25a91f20") d.setAttribute("data-locked","");
   /* nothing of the page shows until router.js has chosen what to show (home, or a tab): the first
      frame is never the wrong page. If a script fails, it shows anyway a moment later */
   d.setAttribute("data-booting",""); setTimeout(function(){ d.removeAttribute("data-booting"); },3000);
@@ -39,25 +39,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <!-- the real Earth and Moon (wonders.js): fetched early, and kept by the offline copy (sw.js reads these addresses) -->
-<link rel="prefetch" href="img/earth-day.jpg?v=0.94" as="image">
-<link rel="prefetch" href="img/earth-aux.jpg?v=0.94" as="image">
-<link rel="prefetch" href="img/moon.jpg?v=0.94" as="image">
-<link rel="stylesheet" href="css/base.css?v=0.94">
-<link rel="stylesheet" href="css/sky.css?v=0.94">
-<link rel="stylesheet" href="css/header.css?v=0.94">
-<link rel="stylesheet" href="css/tabbar.css?v=0.94">
-<link rel="stylesheet" href="css/today.css?v=0.94">
-<link rel="stylesheet" href="css/schedule.css?v=0.94">
-<link rel="stylesheet" href="css/planner.css?v=0.94">
-<link rel="stylesheet" href="css/subjects.css?v=0.94">
-<link rel="stylesheet" href="css/exams.css?v=0.94">
-<link rel="stylesheet" href="css/tasks.css?v=0.94">
-<link rel="stylesheet" href="css/home.css?v=0.94">
-<link rel="stylesheet" href="css/nolan.css?v=0.94">
-<link rel="stylesheet" href="css/settings.css?v=0.94">
-<link rel="stylesheet" href="css/effects.css?v=0.94">
-<link rel="stylesheet" href="css/astral.css?v=0.94">
-<link rel="stylesheet" href="css/cinema.css?v=0.94">
+<link rel="prefetch" href="img/earth-day.jpg?v=0.95" as="image">
+<link rel="prefetch" href="img/earth-aux.jpg?v=0.95" as="image">
+<link rel="prefetch" href="img/moon.jpg?v=0.95" as="image">
+<link rel="stylesheet" href="css/base.css?v=0.95">
+<link rel="stylesheet" href="css/sky.css?v=0.95">
+<link rel="stylesheet" href="css/header.css?v=0.95">
+<link rel="stylesheet" href="css/tabbar.css?v=0.95">
+<link rel="stylesheet" href="css/today.css?v=0.95">
+<link rel="stylesheet" href="css/schedule.css?v=0.95">
+<link rel="stylesheet" href="css/planner.css?v=0.95">
+<link rel="stylesheet" href="css/subjects.css?v=0.95">
+<link rel="stylesheet" href="css/exams.css?v=0.95">
+<link rel="stylesheet" href="css/tasks.css?v=0.95">
+<link rel="stylesheet" href="css/home.css?v=0.95">
+<link rel="stylesheet" href="css/nolan.css?v=0.95">
+<link rel="stylesheet" href="css/settings.css?v=0.95">
+<link rel="stylesheet" href="css/effects.css?v=0.95">
+<link rel="stylesheet" href="css/astral.css?v=0.95">
+<link rel="stylesheet" href="css/cinema.css?v=0.95">
 </head>
 <body>
 <!-- the passage between two looks, when a setting reloads the page (js/shift.js) -->
@@ -288,7 +288,7 @@
 
 </main>
 
-<footer><div class="wrap"><p class="version">v0.94</p></div></footer>
+<footer><div class="wrap"><p class="version">v0.95</p></div></footer>
 </div>
 <div id="debug"></div>
 
@@ -305,6 +305,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M10.54 4.95L10.68 2.69A9.4 9.4 0 0 1 13.32 2.69L13.46 4.95A7.2 7.2 0 0 1 15.95 5.98L17.64 4.48A9.4 9.4 0 0 1 19.52 6.36L18.02 8.05A7.2 7.2 0 0 1 19.05 10.54L21.31 10.68A9.4 9.4 0 0 1 21.31 13.32L19.05 13.46A7.2 7.2 0 0 1 18.02 15.95L19.52 17.64A9.4 9.4 0 0 1 17.64 19.52L15.95 18.02A7.2 7.2 0 0 1 13.46 19.05L13.32 21.31A9.4 9.4 0 0 1 10.68 21.31L10.54 19.05A7.2 7.2 0 0 1 8.05 18.02L6.36 19.52A9.4 9.4 0 0 1 4.48 17.64L5.98 15.95A7.2 7.2 0 0 1 4.95 13.46L2.69 13.32A9.4 9.4 0 0 1 2.69 10.68L4.95 10.54A7.2 7.2 0 0 1 5.98 8.05L4.48 6.36A9.4 9.4 0 0 1 6.36 4.48L8.05 5.98A7.2 7.2 0 0 1 10.54 4.95Z"/><circle cx="12" cy="12" r="2.9"/></svg>
     </a>
   </div>
+  <!-- the way home from Spending: outside its view, so it stays fixed at the top while the view animates in -->
+  <a class="p-back p-back-logo sp-back" href="#home" aria-label="Volver" title="Volver" data-i18n-aria="s.backAria" data-i18n-title="s.backAria"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="lm-line" d="M17 47V17L47 47V17"/><circle cx="17" cy="47" r="3.2"/><circle cx="17" cy="17" r="3.2"/><circle cx="47" cy="47" r="3.2"/><circle cx="47" cy="17" r="3.2"/></svg></a>
   <div class="p-in">
     <div class="p-top">
       <svg class="p-logo" viewBox="0 0 64 64" aria-hidden="true">
@@ -345,6 +347,20 @@
           <span class="p-info"><span data-i18n="s.nolanSoon">La universidad, tu rutina y tus planes.</span></span>
           <span class="p-go"><span data-i18n="s.view">Ver</span> <em>→</em></span>
         </a>
+        <!-- Spending lives at the black hole ("it eats my money"): coming soon; Nolan's own (data-private) -->
+        <a class="p-card" id="homeSpending" data-private href="#spending" data-scene="blackhole" style="--ac:#FF8AD8">
+          <span class="p-ic"><svg class="i-hole i-spend" viewBox="0 0 48 48" aria-hidden="true">
+            <ellipse class="disk" cx="20" cy="30" rx="17.5" ry="4.6"/>
+            <path class="arc" d="M9.6 28.6a10.4 10.4 0 0 1 20.8 0"/>
+            <circle class="shadow" cx="20" cy="29.2" r="6.8"/>
+            <path class="front" d="M3 31.5C8 34.2 32 34.2 37 31.5"/>
+            <path class="trail" d="M31.6 16.4 27.4 20.6M34.4 18.8l-2.6 2.6"/>
+            <g class="coin" transform="rotate(-32 37.5 10.5)"><ellipse cx="37.5" cy="10.5" rx="6" ry="4.2"/><ellipse class="in" cx="37.5" cy="10.5" rx="3.2" ry="2"/></g>
+          </svg></span>
+          <span class="p-txt"><b data-i18n="s.spending">Gastos</b><span data-i18n="s.spendingCard">Tu dinero, en órbita</span></span>
+          <span class="p-info"><span data-i18n="s.spendingLine">Todo lo que cae aquí no vuelve.</span></span>
+          <span class="p-go"><span data-i18n="s.view">Ver</span> <em>→</em></span>
+        </a>
         <!-- the journey, after the sections: one big button that starts a tour through the universe (home.js) -->
         <a class="tour-start" id="tourStart" href="#earth" data-scene="earth" data-tour="start">
           <span class="ts-sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
@@ -356,6 +372,8 @@
     </div>
 
     <div class="p-view p-nolan" data-view="nolan" id="nolanView" hidden></div>
+    <!-- Spending, at the black hole: what is coming (home.js) -->
+    <div class="p-view p-spending" data-view="spending" id="spendingView" hidden></div>
     <!-- a sight, up close: what it is, a few words, the one before and after, and home (home.js) -->
     <div class="p-view p-sight-view" data-view="sight" id="sightView" hidden></div>
     <div class="p-view p-page" data-view="notes" id="notes" hidden>
@@ -387,42 +405,42 @@
      organizer (demo.js), never both. (The offline copy, sw.js, finds every file named here.) -->
 <script>
 document.write(document.documentElement.hasAttribute("data-guest")
-  ? '<script src="demo.js?v=0.94"><\/script>'
-  : '<script src="config.js?v=0.94" onerror="void 0"><\/script><script src="data.js?v=0.94"><\/script><script src="eval.js?v=0.94"><\/script>');
+  ? '<script src="demo.js?v=0.95"><\/script>'
+  : '<script src="config.js?v=0.95" onerror="void 0"><\/script><script src="data.js?v=0.95"><\/script><script src="eval.js?v=0.95"><\/script>');
 </script>
-<script src="js/prefs.js?v=0.94"></script>
-<script src="js/i18n.js?v=0.94"></script>
-<script src="js/core.js?v=0.94"></script>
-<script src="js/shift.js?v=0.94"></script>
-<script src="js/gate.js?v=0.94"></script>
-<script src="js/wonders.js?v=0.94"></script>
-<script src="js/shaders.js?v=0.94"></script>
-<script src="js/galaxies.js?v=0.94"></script>
-<script src="js/universe.js?v=0.94"></script>
-<script src="js/sky.js?v=0.94"></script>
-<script src="js/validate.js?v=0.94"></script>
-<script src="js/derived.js?v=0.94"></script>
-<script src="js/cloud.js?v=0.94"></script>
-<script src="js/header.js?v=0.94"></script>
-<script src="js/astro.js?v=0.94"></script>
-<script src="js/weather.js?v=0.94"></script>
-<script src="js/schedule.js?v=0.94"></script>
-<script src="js/today.js?v=0.94"></script>
-<script src="js/subjects.js?v=0.94"></script>
-<script src="js/faculty.js?v=0.94"></script>
-<script src="js/ics.js?v=0.94"></script>
-<script src="js/exams.js?v=0.94"></script>
-<script src="js/tasks.js?v=0.94"></script>
-<script src="js/notes.js?v=0.94"></script>
-<script src="js/planner.js?v=0.94"></script>
-<script src="js/settings.js?v=0.94"></script>
-<script src="js/nolan.js?v=0.94"></script>
-<script src="js/home.js?v=0.94"></script>
-<script src="js/router.js?v=0.94"></script>
-<script src="js/view.js?v=0.94"></script>
-<script src="js/debug.js?v=0.94"></script>
-<script src="js/effects.js?v=0.94"></script>
-<script src="js/smooth.js?v=0.94"></script>
+<script src="js/prefs.js?v=0.95"></script>
+<script src="js/i18n.js?v=0.95"></script>
+<script src="js/core.js?v=0.95"></script>
+<script src="js/shift.js?v=0.95"></script>
+<script src="js/gate.js?v=0.95"></script>
+<script src="js/wonders.js?v=0.95"></script>
+<script src="js/shaders.js?v=0.95"></script>
+<script src="js/galaxies.js?v=0.95"></script>
+<script src="js/universe.js?v=0.95"></script>
+<script src="js/sky.js?v=0.95"></script>
+<script src="js/validate.js?v=0.95"></script>
+<script src="js/derived.js?v=0.95"></script>
+<script src="js/cloud.js?v=0.95"></script>
+<script src="js/header.js?v=0.95"></script>
+<script src="js/astro.js?v=0.95"></script>
+<script src="js/weather.js?v=0.95"></script>
+<script src="js/schedule.js?v=0.95"></script>
+<script src="js/today.js?v=0.95"></script>
+<script src="js/subjects.js?v=0.95"></script>
+<script src="js/faculty.js?v=0.95"></script>
+<script src="js/ics.js?v=0.95"></script>
+<script src="js/exams.js?v=0.95"></script>
+<script src="js/tasks.js?v=0.95"></script>
+<script src="js/notes.js?v=0.95"></script>
+<script src="js/planner.js?v=0.95"></script>
+<script src="js/settings.js?v=0.95"></script>
+<script src="js/nolan.js?v=0.95"></script>
+<script src="js/home.js?v=0.95"></script>
+<script src="js/router.js?v=0.95"></script>
+<script src="js/view.js?v=0.95"></script>
+<script src="js/debug.js?v=0.95"></script>
+<script src="js/effects.js?v=0.95"></script>
+<script src="js/smooth.js?v=0.95"></script>
 <!-- the offline copy (sw.js): only when served over the web, not from a file -->
 <script>if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>

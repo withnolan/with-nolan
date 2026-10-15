@@ -1,7 +1,7 @@
 /* ==========================================================
    router.js — routes and tabs.
    · #schedule, #subjects, #exams, #tasks, #faculty: UC3M tabs
-   · #home, #notes, #settings, #nolan (or #nolan/…) and the sights (#earth, #moon,
+   · #home, #notes, #settings, #nolan (or #nolan/…), #spending (#gastos) and the sights (#earth, #moon,
      #blackhole, #orion…): the home screen and its pages (home.js); an address
      without a route (the app's start) also opens home; the old #soon/… links
      go to the galaxies they were (now sights)
@@ -17,7 +17,7 @@ const Router=(function(){
   };
   const PAGES=[];                                  /* pages without a tab (notes and settings now live in home) */
   const ALIASES={horario:"schedule",hoy:"schedule",planificador:"planner",mes:"planner",month:"planner",asignaturas:"subjects",
-    calendario:"exams",pendientes:"tasks",profesorado:"faculty",notas:"notes",configuracion:"settings",ajustes:"settings"};
+    calendario:"exams",pendientes:"tasks",profesorado:"faculty",notas:"notes",configuracion:"settings",ajustes:"settings",gastos:"spending"};
   const order=Object.keys(TABS);
   const links=$$("nav.bar a[data-tab]");
   const sections=[...Object.values(TABS).flat(),...PAGES].map(id=>document.getElementById(id)).filter(Boolean);
@@ -86,7 +86,7 @@ const Router=(function(){
   function stamp(){ if(!history.state||typeof history.state.d!=="number"){ depth++; history.replaceState({d:depth},""); } }
 
   /* ---------- routes ---------- */
-  const isHome=r=>r==="home"||r==="notes"||r==="settings"||r==="nolan"||r.startsWith("nolan/")||Home.isSight(r);
+  const isHome=r=>r==="home"||r==="notes"||r==="settings"||r==="nolan"||r.startsWith("nolan/")||r==="spending"||Home.isSight(r);
   function handle(){
     let r=decodeURIComponent(location.hash.slice(1));
     if(r.includes("debug")) return;                    /* handled by debug.js */
@@ -95,8 +95,8 @@ const Router=(function(){
     /* the old "to explore" pages: their galaxies are sights now */
     if(r.startsWith("soon/")){ r=({"soon/andromeda":"ringgalaxy","soon/sombrero":"edgeon"})[r]||"home"; replace("#"+r); }
     if(ALIASES[r]){ r=ALIASES[r]; replace("#"+r); }
-    /* a guest has the whole app with the demo's data, but not Nolan's own pages (Notes for Claude, Nolan) */
-    if(Gate.guest()&&(r==="notes"||r==="nolan"||r.startsWith("nolan/"))){ r="home"; replace("#home"); }
+    /* a guest has the whole app with the demo's data, but not Nolan's own pages (Notes for Claude, Nolan, Spending) */
+    if(Gate.guest()&&(r==="notes"||r==="nolan"||r.startsWith("nolan/")||r==="spending")){ r="home"; replace("#home"); }
     if(isHome(r)){
       if(!shownOnce) show(last,{quiet:true});          /* behind home, the last tab */
       const [view,...sub]=r.split("/"); Home.visit(view,sub.join("/"),last); return;

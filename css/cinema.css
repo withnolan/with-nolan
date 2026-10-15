@@ -233,8 +233,8 @@ html.flying #sky{opacity:1;transition:opacity 4.5s ease}
 .p-in{z-index:2}
 .p-bar{z-index:4}
 
-/* the sections' cards, side by side (one under the other on a phone) */
-.p-cards{grid-template-columns:repeat(2,1fr)}
+/* the sections' cards, side by side as many as fit (one under the other on a phone; a guest sees only UC3M, full width) */
+.p-cards{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
 @media (max-width:620px){.p-cards{grid-template-columns:1fr}}
 
 /* ---------- Log out (in Settings): red ---------- */

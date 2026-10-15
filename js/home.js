@@ -132,7 +132,25 @@ const Home=(function(){
   /* Notes and Settings belong to every section: they open where you are, without moving the camera */
   const PAGES=["notes","settings"];
   const here=()=>{ const s=Universe.scene(); return !s||s==="gate"?"home":s; };
-  const sceneOf=view=>PAGES.includes(view)?here():view==="nolan"?"forge":isSight(view)?view:"home";
+  const sceneOf=view=>PAGES.includes(view)?here():view==="nolan"?"forge":view==="spending"?"blackhole":isSight(view)?view:"home";
+
+  /* ---------- Spending: it lives at the black hole, because that is where the money goes ----------
+     Coming soon: what it will hold (a monthly budget, this month's spending, subscriptions), greyed out */
+  const SPEND_TILES=[
+    {k:"budget", icon:`<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.2 9.6c0-1.2 1.2-2 2.8-2s2.8.8 2.8 2-1.2 1.7-2.8 2.1-2.8.9-2.8 2.2 1.2 2 2.8 2 2.8-.8 2.8-2"/>`},
+    {k:"month", icon:`<path d="M4 18.5h16M6.5 15.5l4-4.5 3 2.6 4.5-6.1"/><path d="M15.2 7.5h2.8v2.8"/>`},
+    {k:"subs", icon:`<path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3M4.5 12A7.5 7.5 0 0 1 17.3 6.7"/><path d="M17.6 3.6v3.4h-3.4M6.4 20.4V17h3.4"/>`}
+  ];
+  function renderSpending(){
+    $("#spendingView").innerHTML=`<p class="s-fact">${esc(t("s.spending.kicker"))}</p>`+
+      `<h2>${esc(t("s.spendingLine"))}</h2>`+
+      `<p class="s-text">${esc(t("s.spending.lead"))}</p>`+
+      `<div class="sp-tiles">`+SPEND_TILES.map(x=>`<div class="sp-tile" aria-disabled="true">`+
+        `<svg viewBox="0 0 24 24" aria-hidden="true">${x.icon}</svg>`+
+        `<span class="sp-name">${esc(t("s.spending."+x.k))}</span><b>${esc(t("s.spending."+x.k+".value"))}</b>`+
+        `<small>${esc(t("s.spending."+x.k+".note"))}</small></div>`).join("")+`</div>`+
+      `<p class="sp-soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>${esc(t("s.spending.soon"))}</p>`;
+  }
   let current="home";                                  /* the scene of what home shows now */
   let lastView="home";                                 /* the last view of home that is not Notes or Settings */
   let homeScroll=0;                                    /* how far down home's list you were when you left it */
@@ -152,6 +170,7 @@ const Home=(function(){
     /* the UC3M card points at the tab you were on */
     if(backTo) $("#homeUc3m").setAttribute("href","#"+backTo);
     if(view==="nolan") Nolan.render($("#nolanView"),subroute||"");
+    if(view==="spending") renderSpending();
     const sight=isSight(view), shown=sight?"sight":view;
     if(sight) renderSight(view);
     const fresh=P.hidden||P.classList.contains("leaving"), before=P.dataset.view;

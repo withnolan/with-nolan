@@ -44,6 +44,7 @@ Nolan's personal organizer, set inside a living 3D universe. Today it covers the
 | **Exams** (`#exams`) | Everything graded, with filters. **Add to my calendar** downloads an `.ics` file for the phone's calendar. |
 | **Tasks** (`#tasks`) | Tasks per subject and general ones, saved to the cloud. |
 | **Faculty** (`#faculty`) | Email and office of each teacher. |
+| **Spending** (`#spending`, alias `#gastos`) | Nolan's spending, at the black hole ("todo lo que cae aquí no vuelve"): for now a "coming soon" page with what it will hold (monthly budget, this month's spending, subscriptions), greyed out. Not for guests. |
 | **Nolan** (`#nolan`) | Nolan's own section: **Día**, **Semana** and **Mes** windows with UC3M classes, his weekly routine, his plans and his own events. |
 | **Notes for Claude** (`#notes`) | Free text saved to the cloud. Claude cannot read the cloud: press *Copy notes* and paste them into the chat. |
 | **Settings** (`#settings`) | Language, smooth scrolling, **Effects** (High / Medium / Minimal), **Supernovas** (On / Off, and a **Supernova now** button) and Log out. |
@@ -266,7 +267,7 @@ The site opens behind an entry screen (`js/gate.js`, styles in `css/cinema.css`)
 For showing the site (a portfolio). **Guest** (`#gateGuest`, or a `?guest` link) opens the same site with a **demo organizer**: an invented Computer Science term at an invented university, always placed around today (today is always week 4 of 14).
 
 - `index.html` loads `demo.js` **instead of** `data.js`, `eval.js` and `config.js`. Nothing of Nolan's is loaded, nothing touches the cloud, the location is never asked (the weather is Getafe's, not saved).
-- Not for a guest: Notes for Claude, the Nolan section and Aula Global (the router sends them home).
+- Not for a guest: Notes for Claude, the Nolan section, Spending and Aula Global (the router sends them home; their home cards carry `data-private`, which `cinema.css` hides).
 - It lasts the visit (`sessionStorage` `nolan-guest`; `<html data-guest>`). In code: `Gate.guest()`.
 - **Leaving:** Settings → "Leave guest mode", or close the tab.
 
@@ -427,7 +428,7 @@ Home (`#home`, `js/home.js`, `css/home.css`) is a window over everything; the pa
 
 - **First screen:** the hero alone (logo, NOLAN, the time, the greeting, the next class, the weather). A small arrow (`#homeMore`) scrolls to the rest.
 - **The next class** (`#homeNext`, `drawNext` in `home.js`): always the class on now ("Now · 40 min left") or the first still to come, looked for day by day with `classesOn` (past weekends, breaks and the exam period): subject, when ("Today · 17:15", "Tomorrow · 09:00", "Thu 15 · 09:00"), room and campus. Built once, then only its words change each minute. Tapping it flies into UC3M, to the timetable (`router.js`).
-- **Further down:** the section cards (UC3M with the week, the class now and the next assessment; Nolan) and **Start the journey** (`#tourStart`), which flies to the Earth and starts the tour.
+- **Further down:** the section cards (UC3M with the week, the class now and the next assessment; Nolan; Spending, which opens inside home at the black hole: `sceneOf` → `"blackhole"`, `renderSpending()`) and then **Start the journey** (`#tourStart`), which flies to the Earth and starts the tour.
 - **A sight's page** (`#<id>`): the words sit low over a soft shade, so the sight fills the sky above: a line on what it is, its name, a few words and "Destination n of 11".
 - **The tour's dock** (`#tour`, from `SIGHTS`): every place with its icon and colour; arrows (and ← →) to the previous and next; the logo goes home.
 - **Back and Escape walk back the way you came** (`router.js`, `Home.visit`). Escape first closes an open detail panel.
@@ -501,7 +502,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.94**. In `index.html`, bump the footer (`v0.94`; the entry screen copies it) and every `?v=0.94`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.95**. In `index.html`, bump the footer (`v0.95`; the entry screen copies it) and every `?v=0.95`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -512,7 +513,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **144 checks** in a real browser (148 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **147 checks** in a real browser (151 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -531,7 +532,7 @@ What they cover:
 | Entry screen | logo and Guest only, nothing read behind it, keypad, wrong PIN, remembered device, the PIN nowhere in the page, Log out |
 | Flights and tour | UC3M and back, the second click, Notes inside UC3M, the journey, the dock, arrow keys, Escape, old `#soon/…` links |
 | Sights | each framed whole on four screens; the black hole up close and from afar; the Earth and the Moon |
-| Guest mode | no private sections, no cloud, Getafe's weather, still a guest after reloading, the way out |
+| Guest mode | no private sections (Notes, Nolan, Spending), no cloud, Getafe's weather, still a guest after reloading, the way out |
 | No flicker | the red line, home's cards, the weather card, ticks from the cloud |
 | Calendar | the red line at different times, minute and midnight changes, dates without a day, multi-day windows |
 | Cloud | failed or slow first reads, old ticks migrated, the device copy first, grades with a comma |
@@ -556,7 +557,7 @@ Run this on the owner's laptop (real graphics card: 3D screenshots are fast ther
 1. ✅ *Done in v0.92.* **Home: the next class, always.** On the hero (near the greeting and the weather) always show the next class: subject, when ("now, 40 min left", "today 17:15", "tomorrow 9:00", "Thu 15 · 9:00") and where (room and campus). Search forward day by day with `classesOn`, `roomOn`, `campusOf`, `classState`; refresh in place on `minute` / `newDay`, no flicker. Tapping it opens the timetable flying into UC3M (like `#homeUc3m`, whose click router.js handles with `Home.enter("uc3m", …)`). It must fit the first screen on a phone.
 2. ✅ *Done in v0.93.* **Home: "Start the journey" (`#tourStart`) goes to the end** of the cards.
 3. ✅ *Done in v0.94.* **The Nolan card is not "under construction" any more:** replace the crane icon with `NOLAN_SVG` (core.js), drop the `wip` dashed look and the glowing-dot tag. Careful: `css/cinema.css` hides private cards from guests with `.p-card.wip`: give them a dedicated marker (e.g. `data-private`) instead.
-4. **A spending universe at the black hole** ("because it eats my money"): a home card "Gastos / Spending" (icon: a black hole swallowing a coin), route `#spending` (alias `#gastos`) that opens inside home like `#nolan` (`sceneOf` in home.js → `"blackhole"`, `isHome` and the guest rule in router.js), showing a premium "coming soon" page for his future spending settings (monthly budget, spending this month, subscriptions, greyed out), with a bit of humour ("Todo lo que cae aquí no vuelve."). Not for guests. Tests in the Home and Guest sections.
+4. ✅ *Done in v0.95.* **A spending universe at the black hole** ("because it eats my money"): a home card "Gastos / Spending" (icon: a black hole swallowing a coin), route `#spending` (alias `#gastos`) that opens inside home like `#nolan` (`sceneOf` in home.js → `"blackhole"`, `isHome` and the guest rule in router.js), showing a premium "coming soon" page for his future spending settings (monthly budget, spending this month, subscriptions, greyed out), with a bit of humour ("Todo lo que cae aquí no vuelve."). Not for guests. Tests in the Home and Guest sections.
 5. **The Nolan section (`#nolan`):** opens on the **month calendar** by default (`#nolan/dia` and `#nolan/semana` still work); the calendar **fills the screen** (full width and the available height, bigger cells; on a computer the whole month without scrolling); each day must hold many items (6–10) without breaking (stacked chips that scroll inside the cell, or "+N"); the top bar becomes **one slim row without the week counter**; its brand mark is `NOLAN_SVG` (the N logo stays the home button). Never break the UC3M Month tab (`#planner`), which shares planner.js / planner.css. Tests: Planner, Home.
 6. **The creative director's audit:** run the agent in `.claude/agents/creative-director.md` (Task 1) on the whole site, desktop and phone, with internet for benchmarks; it writes `creative/01-audit.md`. Then summarise its proposals for the owner and let him choose.
 

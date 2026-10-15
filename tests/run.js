@@ -534,6 +534,25 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       `tapping the next class opens the timetable in UC3M ${p.errors.join(" | ")}`);
     await p.context().close();
   }
+  for(const mobile of [false,true]){
+    /* Spending lives at the black hole: a card on home, #spending (or #gastos) opens inside home, coming soon */
+    const p=await open(b,{hash:"gastos",mobile});
+    await p.waitForTimeout(400);
+    const s=await p.evaluate(()=>{ const v=document.getElementById("spendingView"), r=v.getBoundingClientRect();
+      return {hash:location.hash,shown:!v.hidden&&document.getElementById("portal").dataset.view==="spending",scene:Home.scene(),
+        tiles:v.querySelectorAll('.sp-tile[aria-disabled="true"]').length,joke:/no vuelve/.test(v.textContent),hero:getComputedStyle(document.querySelector("#portal .p-top")).display,
+        fits:r.left>=0&&r.right<=innerWidth+1,back:(e=>!!e&&e.getBoundingClientRect().top<70&&e.getBoundingClientRect().left<70)(document.querySelector('#portal a.sp-back[href="#home"]')),
+        card:!!document.querySelector('#homeSpending[data-private][href="#spending"][data-scene="blackhole"] .i-spend')}; });
+    ok(s.hash==="#spending"&&s.shown&&s.scene==="blackhole"&&s.tiles===3&&s.joke&&s.hero==="none"&&s.fits&&s.back&&s.card&&!p.errors.length,
+      `${mobile?"mobile":"desktop"}: #gastos opens Spending at the black hole: budget, this month and subscriptions greyed out, and the way home (${JSON.stringify(s)})`);
+    if(!mobile){
+      /* (it flies back out of the black hole first: seconds, more on a software graphics card) */
+      await p.keyboard.press("Escape");
+      await p.waitForFunction(()=>document.getElementById("portal").dataset.view==="home",null,{timeout:20000}).catch(()=>{});
+      ok(await p.evaluate(()=>location.hash==="#home"&&document.getElementById("portal").dataset.view==="home"),"Escape from Spending flies home");
+    }
+    await p.context().close();
+  }
   {
     /* the opening plays once: when it ends, nothing on home fades out and in again */
     const p=await open(b,{hash:"home"});
@@ -577,7 +596,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     await p.waitForFunction(()=>!document.getElementById("portal").hidden&&!Universe.busy(),null,{timeout:20000}).catch(()=>{});
     const r=await p.evaluate(()=>({guest:document.documentElement.hasAttribute("data-guest"),home:!document.getElementById("portal").hidden,
       greeting:document.getElementById("homeGreeting").textContent,demo:!!SUBJECTS.alg&&!SUBJECTS.ed,card:document.querySelector("#homeUc3m b").textContent,
-      nolan:getComputedStyle(document.querySelector("#portal #homeNolan[data-private]")).display,notes:getComputedStyle(document.querySelector('#portal .p-tool[href="#notes"]')).display,
+      nolan:getComputedStyle(document.querySelector("#portal #homeNolan[data-private]")).display,spending:getComputedStyle(document.getElementById("homeSpending")).display,notes:getComputedStyle(document.querySelector('#portal .p-tool[href="#notes"]')).display,
       explore:getComputedStyle(document.getElementById("tourStart")).display,device:localStorage.getItem("nolan-device"),errors:CHECK.errors.length,warnings:CHECK.warnings.length}));
     r.cloud=p.requests.filter(u=>/jsonbin/.test(u)).length;
     r.files=p.requests.filter(u=>/\/(data|eval|config|demo)\.js/.test(u)).map(u=>u.replace(/^.*\//,"").replace(/\?.*/,""));
@@ -585,7 +604,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const w=await p.evaluate(()=>({text:document.getElementById("homeWeather").textContent,kept:localStorage.getItem("weather")}));
     w.located=p.requests.some(u=>/bigdatacloud|latitude=48\.857/.test(u));
     ok(/24°/.test(w.text)&&/Getafe/.test(w.text)&&!w.kept&&!w.located,`a guest sees the weather of Getafe, without the device's location, and it is not kept (${JSON.stringify(w)})`);
-    ok(r.guest&&r.home&&/invitado/.test(r.greeting)&&r.demo&&r.card==="Universidad"&&r.nolan==="none"&&r.notes==="none"&&r.explore!=="none"&&!r.cloud&&!r.device&&!r.errors&&!r.warnings
+    ok(r.guest&&r.home&&/invitado/.test(r.greeting)&&r.demo&&r.card==="Universidad"&&r.nolan==="none"&&r.spending==="none"&&r.notes==="none"&&r.explore!=="none"&&!r.cloud&&!r.device&&!r.errors&&!r.warnings
       &&r.files.join()==="demo.js",
       `the guest button opens the same site with a demo organizer: demo.js only (not Nolan's data or the cloud's key), nothing read from the cloud (${JSON.stringify(r)})`);
     await p.goto(PAGE+"#schedule");
@@ -593,8 +612,8 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const app=await p.evaluate(()=>({hash:location.hash,brand:document.querySelector("header .brand").textContent,rows:document.querySelectorAll("#calbody .ev").length,
       ag:getComputedStyle(document.querySelector(".ag-btn")).display,portal:document.getElementById("portal").hidden}));
     const routes={};
-    for(const h of ["notes","nolan"]){ await p.goto(PAGE+"#"+h); await p.waitForTimeout(300); routes[h]=await p.evaluate(()=>location.hash); }
-    ok(app.hash==="#schedule"&&app.portal&&/Demo/.test(app.brand)&&app.rows>5&&app.ag==="none"&&routes.notes==="#home"&&routes.nolan==="#home",
+    for(const h of ["notes","nolan","spending","gastos"]){ await p.goto(PAGE+"#"+h); await p.waitForTimeout(300); routes[h]=await p.evaluate(()=>location.hash); }
+    ok(app.hash==="#schedule"&&app.portal&&/Demo/.test(app.brand)&&app.rows>5&&app.ag==="none"&&routes.notes==="#home"&&routes.nolan==="#home"&&routes.spending==="#home"&&routes.gastos==="#home",
       `a guest can use the whole organizer with the demo data, but not Nolan's own pages (${JSON.stringify(app)} ${JSON.stringify(routes)})`);
     await p.reload(); await p.waitForTimeout(600);
     const again=await p.evaluate(()=>({guest:document.documentElement.hasAttribute("data-guest"),locked:document.documentElement.hasAttribute("data-locked")}));
