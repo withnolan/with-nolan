@@ -437,6 +437,42 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     await p.click("#planner-grid .m-chip.own"); await p.click("#planner-detail [data-del]"); await p.click("#planner-detail [data-del]");
     const gone=await p.evaluate(()=>document.querySelectorAll("#planner-grid .m-chip.own").length+MyEvents.list().length);
     ok(added.chip.join()==="2026-10-22"&&(added.cloud||added.kept===1)&&gone===0&&!p.errors.length,`+ adds your own event on its day, and it can be deleted (${JSON.stringify(added)}, left ${gone})`);
+    /* UC3M's Month tab keeps its own look: its rows stay as they were (Nolan's month shares planner.js / planner.css) */
+    ok(await p.evaluate(()=>getComputedStyle(document.querySelector("#planner-grid .m-grid.days")).gridAutoRows==="118px"&&!document.querySelector("#planner-grid .m-more")),
+      "UC3M's month keeps its own rows, without Nolan's +N");
+    await p.context().close();
+  }
+  for(const mobile of [false,true]){
+    /* Nolan's month: it opens first, fills the screen, and a crowded day shows what fits and "+N" for the rest */
+    const p=await open(b,{hash:"nolan",time:"2026-10-20T10:00:00",mobile});
+    await p.waitForTimeout(400);
+    /* (a phone shows dots: ten fit in a day, so it gets more) */
+    await p.evaluate(n=>{ for(let i=0;i<n;i++) MyEvents.save({date:"2026-10-22",what:"Plan "+(i+1),time:(8+i%14)+":00",color:MY_COLORS[i%8],where:"nolan"}); },mobile?15:9);
+    await p.waitForTimeout(300);
+    const r=await p.evaluate(()=>{ const P=document.getElementById("portal"), grid=document.querySelector("#nolan-grid .m-grid.days"), head=document.querySelector("#nolanView .n-head");
+      const day=document.querySelector('#nolan-grid .m-day[data-day="2026-10-22"]'), bar=document.querySelector("#portal .p-bar").getBoundingClientRect();
+      const shown=[...day.querySelectorAll(".m-chip")].filter(c=>!c.hidden).length, more=day.querySelector(".m-more");
+      return {month:!document.getElementById("n-month").hidden,tabs:[...document.querySelectorAll("#nolanView .n-tabs a")].map(a=>a.dataset.w).join(),
+        fits:P.scrollHeight<=P.clientHeight+1,bottom:Math.round(grid.getBoundingClientRect().bottom),h:innerHeight,
+        width:Math.round(grid.getBoundingClientRect().width),cell:Math.round(day.getBoundingClientRect().height),
+        head:Math.round(head.getBoundingClientRect().height),headRight:Math.round(Math.max(...[...head.children].filter(c=>c.offsetWidth).map(c=>c.getBoundingClientRect().right))),barLeft:Math.round(bar.left),
+        week:!!document.querySelector("#nolanView .week-badge,#nolanView .n-week"),mark:!!head.querySelector(".n-brand svg.i-nolan"),home:!!head.querySelector('a.home-btn[href="#home"] .logo-mark'),
+        total:day.querySelectorAll(".m-chip").length,shown,more:more?more.textContent:"",
+        spill:[...document.querySelectorAll("#nolan-grid .m-day")].filter(d=>d.scrollHeight>d.clientHeight+1).length}; });
+    const tag=mobile?"mobile":"desktop";
+    ok(r.month&&r.tabs==="mes,semana,dia",`${tag}: #nolan opens on the month, first of its windows (${r.tabs})`);
+    ok(r.fits&&r.bottom<=r.h&&r.bottom>r.h-40&&r.width>=(mobile?360:1200)&&r.cell>(mobile?100:130),
+      `${tag}: the month fills the screen, the whole of it without scrolling, with big days (${JSON.stringify({bottom:r.bottom,h:r.h,width:r.width,cell:r.cell})})`);
+    ok(r.head<=44&&!r.week&&r.mark&&r.home&&r.headRight<r.barLeft,`${tag}: the bar is one slim row: the logo home, Nolan's mark, no week counter, clear of home's buttons (${JSON.stringify({head:r.head,right:r.headRight,bar:r.barLeft})})`);
+    ok(r.total>=10&&r.shown>0&&r.shown<r.total&&r.more==="+"+(r.total-r.shown)&&!r.spill,`${tag}: a day with ${r.total} things shows ${r.shown} and "${r.more}", and no day spills over`);
+    if(!mobile){
+      await p.click('#nolan-grid .m-day[data-day="2026-10-22"] .m-more'); await p.waitForTimeout(400);
+      const d=await p.evaluate(()=>({hash:location.hash,day:!document.getElementById("n-day").hidden,plans:[...document.querySelectorAll("#n-day .n-item")].filter(x=>/^Plan /.test(x.textContent.replace(/^[^A-Z]*/,""))||/Plan \d/.test(x.textContent)).length}));
+      ok(d.hash==="#nolan/dia"&&d.day&&d.plans===9,`"+N" opens that day, with all of it (${JSON.stringify(d)})`);
+      const w={};
+      for(const h of ["semana","dia"]){ await p.goto(PAGE+"#nolan/"+h); await p.waitForTimeout(300); w[h]=await p.evaluate(id=>!document.getElementById(id).hidden,h==="dia"?"n-day":"n-week"); }
+      ok(w.semana&&w.dia&&!p.errors.length,`#nolan/semana and #nolan/dia still open their windows ${p.errors.join(" | ")}`);
+    }
     await p.context().close();
   }
   }

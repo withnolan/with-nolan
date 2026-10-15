@@ -1,10 +1,11 @@
 /* ==========================================================
-   nolan.js — the Nolan section: built like the UC3M app (its header with
-   the logo, the clock, the date and the week) with three windows of his
-   own, one at a time, chosen in the row under the header:
-     · Día (#nolan, #nolan/dia): one day, hour by hour.
+   nolan.js — the Nolan section: one slim bar (the logo that goes home, his
+   mark NOLAN_SVG, the windows, the time and date) over three windows of his
+   own, one at a time:
+     · Mes (#nolan, #nolan/mes): the month planner (planner.js), filling the
+       screen; a day shows what fits and "+N" for the rest, which opens that day.
      · Semana (#nolan/semana): the seven days of a week side by side.
-     · Mes (#nolan/mes): the month planner (planner.js).
+     · Día (#nolan/dia): one day, hour by hour.
    The day and the week show the UC3M classes and events, his weekly routine
    (ROUTINE in data.js), his plans (PERSONAL in data.js) and every event added
    with "+" (MyEvents, planner.js); the month, the events and plans. Adding is always the same
@@ -12,9 +13,9 @@
    Its design is in css/nolan.css.
    ========================================================== */
 const Nolan=(function(){
-  const WINDOWS=[["dia","nolan.day"],["semana","nolan.week"],["mes","nolan.month"]];
+  const WINDOWS=[["mes","nolan.month"],["semana","nolan.week"],["dia","nolan.day"]];
   const ALIAS={day:"dia",today:"dia",hoy:"dia",week:"semana",month:"mes"};
-  let box=null, cal=null, shown="dia", day=todayISO(), weekStart=null;
+  let box=null, cal=null, shown="mes", day=todayISO(), weekStart=null;
   const routine=()=>typeof ROUTINE!=="undefined"?ROUTINE:[];
   const personal=()=>typeof PERSONAL!=="undefined"?PERSONAL:[];
   const mondayOf=k=>addDays(k,-((fromISO(k).getDay()+6)%7));
@@ -64,22 +65,47 @@ const Nolan=(function(){
     if(shown==="dia") drawDay(); else if(shown==="semana") drawWeek(); else cal.render();
   }
 
+  /* the month: each day holds what fits; the rest hides behind "+N", which opens that day (all of it, by time).
+     Measured after drawing, and again when the screen changes size */
+  function fit(){
+    const grid=$("#nolan-grid");
+    if(!grid||shown!=="mes"||!grid.offsetHeight) return;
+    grid.querySelectorAll(".m-day").forEach(d=>{
+      d.querySelectorAll(".m-more").forEach(x=>x.remove());
+      const items=[...d.children].filter(x=>x.matches(".m-chip,.m-link"));
+      items.forEach(x=>x.hidden=false);
+      if(d.scrollHeight<=d.clientHeight+1) return;
+      const more=document.createElement("button");
+      more.type="button"; more.className="m-more";
+      if(d.dataset.day) more.dataset.more=d.dataset.day; else more.disabled=true;
+      d.appendChild(more);
+      let n=0;
+      for(let i=items.length-1; i>=0&&(n===0||d.scrollHeight>d.clientHeight+1); i--){
+        items[i].hidden=true; n++;
+        more.textContent="+"+n; more.setAttribute("aria-label",t("nolan.moreAria",{n}));
+      }
+    });
+  }
+  let fitTimer=0;
+  const refit=()=>{ cancelAnimationFrame(fitTimer); fitTimer=requestAnimationFrame(fit); };
+
   function build(){
     box.innerHTML=
       `<div class="n-head">`+
-        `<div class="hdr-top"><div class="hdr-left">`+
-          `<a class="icon home-btn" href="#home" aria-label="${esc(t("nolan.backAria"))}" title="${esc(t("nolan.backAria"))}">${LOGO_SVG}</a>`+
-          `<span class="brand">${esc(t("nolan.brand"))}</span></div></div>`+
-        `<div class="hdr-main"><div class="clock"><div class="clock-time n-time"></div><div class="clock-date n-date"></div></div>`+
-          `<div class="hdr-meta"><div class="week-badge n-week"></div></div></div>`+
+        `<a class="icon home-btn" href="#home" aria-label="${esc(t("nolan.backAria"))}" title="${esc(t("nolan.backAria"))}">${LOGO_SVG}</a>`+
+        `<span class="n-brand"><span class="n-mark">${NOLAN_SVG}</span><span class="n-name">${esc(t("nolan.brand"))}</span></span>`+
+        `<nav class="n-tabs" aria-label="${esc(t("nolan.windows"))}">`+WINDOWS.map(([id,k])=>`<a href="#nolan/${id}" data-w="${id}">${esc(t(k))}</a>`).join("")+`</nav>`+
+        `<div class="n-clock"><span class="n-time"></span><span class="n-date"></span></div>`+
       `</div>`+
-      `<nav class="n-tabs" aria-label="${esc(t("nolan.windows"))}">`+WINDOWS.map(([id,k])=>`<a href="#nolan/${id}" data-w="${id}">${esc(t(k))}</a>`).join("")+`</nav>`+
-      `<section class="n-win" id="n-day"></section>`+
+      `<section class="n-win" id="n-month"><div id="nolan-grid"></div></section>`+
       `<section class="n-win" id="n-week" hidden></section>`+
-      `<section class="n-win" id="n-month" hidden><div id="nolan-grid"></div></section>`;
-    cal=makePlanner($("#nolan-grid"),{detail:"nolan-detail",events:EVENTS,personal:personal(),mine:()=>MyEvents.list(),where:"nolan"});
-    /* the arrows, "today" and "+" of the day and the week */
+      `<section class="n-win" id="n-day" hidden></section>`;
+    cal=makePlanner($("#nolan-grid"),{detail:"nolan-detail",events:EVENTS,personal:personal(),mine:()=>MyEvents.list(),where:"nolan",onRender:refit});
+    window.addEventListener("resize",refit);
+    /* the arrows, "today" and "+" of the day and the week; "+N" of a day of the month */
     box.addEventListener("click",ev=>{
+      const more=ev.target.closest(".m-more[data-more]");
+      if(more){ day=more.dataset.more; location.hash="#nolan/dia"; return; }
       const a=ev.target.closest("[data-add]");
       if(a){ pendingAdd=a.dataset.add; location.hash="#nolan/mes"; return; }       /* (the form opens once the month shows) */
       const col=ev.target.closest(".n-col[data-day]");
@@ -90,11 +116,11 @@ const Nolan=(function(){
       else weekStart=n?addDays(weekStart,7*n):mondayOf(todayISO());
       draw();
     });
-    /* the clock, the date and the week are the app header's own (header.js keeps them right) */
+    /* the time and the date are the app header's own (header.js keeps them right) */
     const tick=()=>{
       const n=new Date(), hm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
-      const put=(sel,v,html)=>{ const el=box.querySelector(sel); if(el&&(html?el.innerHTML:el.textContent)!==v) html?el.innerHTML=v:el.textContent=v; };
-      put(".n-time",hm); put(".n-date",($("#clockDate")||{}).textContent||""); put(".n-week",($("#weekBadge")||{}).innerHTML||"",true);
+      const put=(sel,v)=>{ const el=box.querySelector(sel); if(el&&el.textContent!==v) el.textContent=v; };
+      put(".n-time",hm); put(".n-date",($("#clockDate")||{}).textContent||"");
     };
     tick(); document.addEventListener("minute",tick);
     document.addEventListener("newDay",e=>{ tick(); if(day===addDays(e.detail,-1)) day=e.detail;
@@ -109,7 +135,7 @@ const Nolan=(function(){
     render(el,subroute){
       if(!box){ box=el; tick=build(); weekStart=mondayOf(todayISO()); }
       const w=ALIAS[subroute]||subroute;
-      shown=WINDOWS.some(([id])=>id===w)?w:"dia";
+      shown=WINDOWS.some(([id])=>id===w)?w:"mes";
       tick(); draw();
       if(shown==="mes"&&pendingAdd){ const k=pendingAdd; pendingAdd=null; cal.add(k); }
     }

@@ -45,7 +45,7 @@ Nolan's personal organizer, set inside a living 3D universe. Today it covers the
 | **Tasks** (`#tasks`) | Tasks per subject and general ones, saved to the cloud. |
 | **Faculty** (`#faculty`) | Email and office of each teacher. |
 | **Spending** (`#spending`, alias `#gastos`) | Nolan's spending, at the black hole ("todo lo que cae aquí no vuelve"): for now a "coming soon" page with what it will hold (monthly budget, this month's spending, subscriptions), greyed out. Not for guests. |
-| **Nolan** (`#nolan`) | Nolan's own section: **Día**, **Semana** and **Mes** windows with UC3M classes, his weekly routine, his plans and his own events. |
+| **Nolan** (`#nolan`) | Nolan's own section, under one slim bar (the N home, his galaxy mark, the windows, the time): **Mes** (first; it fills the screen, a crowded day shows "+N" that opens it), **Semana** and **Día**, with UC3M classes, his weekly routine, his plans and his own events. |
 | **Notes for Claude** (`#notes`) | Free text saved to the cloud. Claude cannot read the cloud: press *Copy notes* and paste them into the chat. |
 | **Settings** (`#settings`) | Language, smooth scrolling, **Effects** (High / Medium / Minimal), **Supernovas** (On / Off, and a **Supernova now** button) and Log out. |
 
@@ -495,14 +495,14 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 
 ### Nolan
 
-`js/nolan.js` (content) and `css/nolan.css` (design). `#nolan/anything` reaches `Nolan.render(box, "anything")`.
+`js/nolan.js` (content) and `css/nolan.css` (design). `#nolan/anything` reaches `Nolan.render(box, "anything")` (`#nolan` alone is the month). The month is the shared planner with an `onRender` hook (`fit()`: what does not fit in a day hides behind "+N"); its full-screen look is scoped to `#n-month` in `nolan.css`, so UC3M's Month tab (`#planner`) keeps its own.
 
 ---
 
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.96**. In `index.html`, bump the footer (`v0.96`; the entry screen copies it) and every `?v=0.96`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.97**. In `index.html`, bump the footer (`v0.97`; the entry screen copies it) and every `?v=0.97`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -513,7 +513,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **149 checks** in a real browser (153 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **160 checks** in a real browser (164 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -534,7 +534,7 @@ What they cover:
 | Sights | each framed whole on four screens; the black hole up close and from afar; the Earth and the Moon |
 | Guest mode | no private sections (Notes, Nolan, Spending), no cloud, Getafe's weather, still a guest after reloading, the way out |
 | No flicker | the red line, home's cards, the weather card, ticks from the cloud |
-| Calendar | the red line at different times, minute and midnight changes, dates without a day, multi-day windows |
+| Calendar | the red line at different times, minute and midnight changes, dates without a day, multi-day windows; Nolan's month (first, full screen, "+N", the slim bar) and UC3M's untouched |
 | Cloud | failed or slow first reads, old ticks migrated, the device copy first, grades with a comma |
 | Home and settings | the window, the next class, just the sky, Nolan, the reload fade, English, every text translated, the animation levels |
 | Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders (the Orion Nebula and the Pleiades round at every size), a supernova and its smooth passing, Quality Low and Medium, Effects, the constellation |
@@ -558,7 +558,7 @@ Run this on the owner's laptop (real graphics card: 3D screenshots are fast ther
 2. ✅ *Done in v0.93.* **Home: "Start the journey" (`#tourStart`) goes to the end** of the cards.
 3. ✅ *Done in v0.94.* **The Nolan card is not "under construction" any more:** replace the crane icon with `NOLAN_SVG` (core.js), drop the `wip` dashed look and the glowing-dot tag. Careful: `css/cinema.css` hides private cards from guests with `.p-card.wip`: give them a dedicated marker (e.g. `data-private`) instead.
 4. ✅ *Done in v0.95.* **A spending universe at the black hole** ("because it eats my money"): a home card "Gastos / Spending" (icon: a black hole swallowing a coin), route `#spending` (alias `#gastos`) that opens inside home like `#nolan` (`sceneOf` in home.js → `"blackhole"`, `isHome` and the guest rule in router.js), showing a premium "coming soon" page for his future spending settings (monthly budget, spending this month, subscriptions, greyed out), with a bit of humour ("Todo lo que cae aquí no vuelve."). Not for guests. Tests in the Home and Guest sections.
-5. **The Nolan section (`#nolan`):** opens on the **month calendar** by default (`#nolan/dia` and `#nolan/semana` still work); the calendar **fills the screen** (full width and the available height, bigger cells; on a computer the whole month without scrolling); each day must hold many items (6–10) without breaking (stacked chips that scroll inside the cell, or "+N"); the top bar becomes **one slim row without the week counter**; its brand mark is `NOLAN_SVG` (the N logo stays the home button). Never break the UC3M Month tab (`#planner`), which shares planner.js / planner.css. Tests: Planner, Home.
+5. ✅ *Done in v0.97.* **The Nolan section (`#nolan`):** opens on the **month calendar** by default (`#nolan/dia` and `#nolan/semana` still work); the calendar **fills the screen** (full width and the available height, bigger cells; on a computer the whole month without scrolling); each day must hold many items (6–10) without breaking (stacked chips that scroll inside the cell, or "+N"); the top bar becomes **one slim row without the week counter**; its brand mark is `NOLAN_SVG` (the N logo stays the home button). Never break the UC3M Month tab (`#planner`), which shares planner.js / planner.css. Tests: Planner, Home.
 6. **The creative director's audit:** run the agent in `.claude/agents/creative-director.md` (Task 1) on the whole site, desktop and phone, with internet for benchmarks; it writes `creative/01-audit.md`. Then summarise its proposals for the owner and let him choose.
 
 Tests: only the sections each change touches (`ONLY="Home,Guest"`, `ONLY="Planner,Home"`…). On the laptop, Playwright finds its own browser (`npx playwright install chromium` once).

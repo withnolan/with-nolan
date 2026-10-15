@@ -44,7 +44,8 @@ const MyEvents=(function(){
 /* the colours a new event can take */
 const MY_COLORS=["#FFA640","#5AA9FF","#3FD9A4","#FF6B5E","#A987FF","#F06BD4","#3FCCE8","#E8E8F0"];
 
-function makePlanner(box,{detail="planner-detail",events=EVENTS,personal=[],mine=()=>MyEvents.list("uc3m"),where="uc3m"}={}){
+/* onRender: called after every drawing (Nolan's month uses it to fit each day's chips; UC3M's has none) */
+function makePlanner(box,{detail="planner-detail",events=EVENTS,personal=[],mine=()=>MyEvents.list("uc3m"),where="uc3m",onRender=null}={}){
   /* months of the academic year */
   const months=[];
   for(let d=fromISO(CALENDAR.year.from.slice(0,8)+"01"); isoDate(d)<=CALENDAR.year.to; d.setMonth(d.getMonth()+1))
@@ -119,6 +120,7 @@ function makePlanner(box,{detail="planner-detail",events=EVENTS,personal=[],mine
     const rest=(lead+total)%7;
     if(rest) for(let i=1;i<=7-rest;i++) html+=outside(new Date(mo.y,mo.m+1,i));
     box.innerHTML=html+`</div></div><div id="${detail}" class="ev-detail" hidden></div>`;
+    if(onRender) onRender();
   }
 
   const panel=()=>document.getElementById(detail);
