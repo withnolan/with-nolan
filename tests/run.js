@@ -411,6 +411,28 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   }
 
+  if(section("Nolan details")){
+  {
+    /* Thu 15 Oct 11:33: the ED exam (09:00–10:30) takes ED's class slot; Monday 12 is a holiday */
+    const p=await open(b,{hash:"nolan/semana",time:"2026-10-15T11:33:00"});
+    const w=await p.evaluate(()=>({intro:document.documentElement.classList.contains("intro-on"),
+      off:(document.querySelector('#n-week .n-col[data-day="2026-10-12"] .n-off')||{}).textContent}));
+    await p.goto(PAGE+"#nolan/dia"); await p.waitForTimeout(300);
+    const d=await p.evaluate(()=>({ed:[...document.querySelectorAll("#n-day .n-item")].filter(x=>/ED ·|Estructura de Datos/.test(x.textContent)).length,
+      parts:[...document.querySelectorAll("#n-day .n-part")].map(x=>x.textContent).join(),now:!!document.querySelector("#n-day .n-now"),
+      past:document.querySelectorAll("#n-day .n-item.past").length}));
+    await p.goto(PAGE+"#nolan"); await p.waitForTimeout(400);
+    const m=await p.evaluate(()=>{ const P=document.getElementById("portal"), b=document.querySelector("#nolanView .n-invite");
+      return {invite:!!b&&!b.hidden&&/añade lo tuyo/.test(b.textContent),fits:P.scrollHeight<=P.clientHeight+1}; });
+    await p.click("#nolanView .n-invite"); await p.waitForTimeout(300);
+    m.form=await p.evaluate(()=>{ const f=document.querySelector("#nolan-detail form"); return !!f&&!document.getElementById("nolan-detail").hidden; });
+    ok(!w.intro&&w.off==="Festivo",`a direct #nolan/semana plays no opening (no "Saltar intro"), and Monday 12 says "Festivo" (${JSON.stringify(w)})`);
+    ok(d.ed===1&&/Mañana/.test(d.parts)&&d.now&&d.past>0,`Día: the exam and its class are one row, the day in parts, a now line, what is over dimmed (${JSON.stringify(d)})`);
+    ok(m.invite&&m.fits&&m.form&&!p.errors.length,`an empty month invites him to add his own (it opens the form) and still fits the screen (${JSON.stringify(m)}) ${p.errors.join(" | ")}`);
+    await p.context().close();
+  }
+  }
+
   if(section("Ended exams")){
   {
     /* an exam that has ended is never "today" again: ED, Thu 15 Oct 09:00–10:30. At 10:28 and 10:29 it is "hoy";

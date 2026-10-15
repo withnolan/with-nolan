@@ -213,7 +213,8 @@ const Router=(function(){
 
   /* ---------- start ---------- */
   handle();
-  if(!Gate.locked()&&Home.isOpen()) Home.intro();      /* the opening, when the app starts at home */
+  /* the opening (the logo drawing itself, NOLAN, the time…) belongs to home's hero: not when the app starts on Nolan, a sight or a page */
+  if(!Gate.locked()&&Home.isOpen()&&$("#portal").dataset.view==="home") Home.intro();
   if(!shownOnce) show("schedule",{quiet:true});        /* e.g. when opened with #debug */
   document.documentElement.removeAttribute("data-booting");   /* the first view is chosen: now it can be seen */
   /* after loading, the browser jumps to the hash's anchor (#schedule is the weekly
