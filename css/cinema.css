@@ -203,6 +203,10 @@ body.arriving>div.wrap{animation-delay:.2s}
 .w-sun-ic{width:14px;height:14px;flex:0 0 auto;fill:none;stroke:#E8B872;stroke-width:1.5;stroke-linecap:round}
 /* waiting for the weather: the card has its full shape already, its figures dimmed */
 .w-wait .w-ic,.w-wait .w-temp,.w-wait .w-stat:not(.w-sunstat) b{opacity:.35}
+/* offline with nothing kept: one line, the sun on its right */
+.w-none .w-main{height:auto}
+.w-none .w-what span{font-size:.86rem;font-weight:500;color:#B8BDCB}
+.w-none .w-sunstat{margin-left:auto;flex:0 0 auto}
 .portal.intro .p-weather{animation:rise 1s 2.3s var(--ease) backwards}
 @media (max-width:620px){.w-card{max-width:none}.w-temp{font-size:1.8rem}.w-stat small{font-size:.6rem;letter-spacing:.03em}}
 

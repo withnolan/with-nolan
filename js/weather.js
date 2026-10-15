@@ -53,7 +53,11 @@
     const stat=(label,value)=>`<div class="w-stat"><small>${esc(label)}</small><b>${esc(value)}</b></div>`;
     /* before the weather arrives the card already has its full shape ("—" in each place), so
        nothing on home moves when it comes */
-    const html=`<div class="w-card${c?"":" w-wait"}">`+
+    /* no word from the sky (offline, nothing kept): one honest line and the sun, which is computed here, not a panel of dashes */
+    const sunStat=`<div class="w-stat w-sunstat"><small>${svg(SUN,"w-sun-ic")}${esc(sunLabel)}</small><b>${esc(sunTime)}</b></div>`;
+    const html=!c&&failed?`<div class="w-card w-none"><div class="w-main">${svg(ICON.cloudy(),"w-ic")}`+
+        `<div class="w-what"><span>${esc(t("weather.none"))}</span><em>${esc(p.name)}</em></div>${sunStat}</div></div>`:
+      `<div class="w-card${c?"":" w-wait"}">`+
       (c?`<div class="w-main">${svg(ICON[k](c.is_day),"w-ic")}<b class="w-temp">${Math.round(c.temperature_2m)}°</b>`+
           `<div class="w-what"><span>${esc(t("weather."+(k==="rain"?"rain_":k)))}</span><em>${esc(p.name)}</em></div></div>`
         :`<div class="w-main">${svg(ICON.cloudy(),"w-ic")}<b class="w-temp">—°</b><div class="w-what"><span>&nbsp;</span><em>${esc(p.name)}</em></div></div>`)+
@@ -61,7 +65,7 @@
         (dl?stat(t("weather.max"),Math.round(dl.temperature_2m_max[0])+"°")+stat(t("weather.min"),Math.round(dl.temperature_2m_min[0])+"°")+
             stat(t("weather.rainLabel"),(dl.precipitation_probability_max?dl.precipitation_probability_max[0]:0)+" %")
           :stat(t("weather.max"),"—")+stat(t("weather.min"),"—")+stat(t("weather.rainLabel"),"—"))+
-        `<div class="w-stat w-sunstat"><small>${svg(SUN,"w-sun-ic")}${esc(sunLabel)}</small><b>${esc(sunTime)}</b></div>`+
+        sunStat+
       `</div></div>`;
     if(html!==box.dataset.html){ box.dataset.html=html; box.innerHTML=html; }
   }
@@ -87,12 +91,13 @@
 
   /* only the newest request may change the card: an older, slower answer (the last place, or
      Getafe) never overwrites the weather of where the device turned out to be */
-  let seq=0, triedAt=0, savedAt=0;
+  let seq=0, triedAt=0, savedAt=0, failed=false;
   async function load(p){
     const my=++seq; triedAt=Date.now();
     let d=null;
     try{ d=await fetchWeather(p); }catch(e){}
     if(my!==seq) return;
+    failed=!d;
     if(d){
       place=p; data=d; savedAt=Date.now();
       /* a guest's weather is not kept on the device */

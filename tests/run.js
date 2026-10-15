@@ -378,6 +378,24 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   }
 
+  if(section("Home details")){
+  {
+    /* a phone: compact cards, an honest weather line when the sky does not answer (the tests cut it off),
+       the sign-off at the end, and every destination's name whole in the dock */
+    const p=await open(b,{hash:"home",mobile:true});
+    await p.waitForFunction(()=>/Sin parte/.test(document.getElementById("homeWeather").textContent),null,{timeout:8000}).catch(()=>{});
+    const r=await p.evaluate(()=>({cards:[...document.querySelectorAll("#portal .p-card")].filter(c=>c.offsetHeight).map(c=>c.offsetHeight),
+      weather:document.getElementById("homeWeather").innerText.replace(/\s+/g," "),dashes:document.querySelectorAll("#homeWeather .w-stat").length,
+      sign:(document.querySelector("#portal .p-sign")||{}).textContent,foot:document.querySelector("footer .sign").textContent,ver:document.querySelector("footer .version").textContent}));
+    ok(r.cards.length===3&&r.cards.every(h=>h<220)&&/Sin parte del cielo/.test(r.weather)&&r.dashes===1&&/bajo el cielo de Getafe/.test(r.sign)&&/Getafe/.test(r.foot)&&/^v\d/.test(r.ver),
+      `phone home: compact cards, one weather line offline, the sign-off (${JSON.stringify(r)})`);
+    await p.goto(PAGE+"#orion"); await p.waitForTimeout(500);
+    const cut=await p.evaluate(()=>[...document.querySelectorAll("#tourList .t-name")].filter(n=>n.scrollHeight>n.clientHeight+1).map(n=>n.textContent));
+    ok(!cut.length,`every destination's name is whole in the dock (${cut.join(", ")})`);
+    await p.context().close();
+  }
+  }
+
   if(section("Ended exams")){
   {
     /* an exam that has ended is never "today" again: ED, Thu 15 Oct 09:00–10:30. At 10:28 and 10:29 it is "hoy";
