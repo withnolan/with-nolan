@@ -9,7 +9,7 @@ html[data-booting] body>header.top,html[data-booting] body>nav.bar,html[data-boo
 /* a guest (gate.js): the same app with the demo's data (demo.js), without Nolan's own pages
    (Nolan, Notes for Claude) or the university's links (Aula Global) */
 html[data-guest] #homeUc3m{grid-column:1/-1}
-html[data-guest] #portal .p-card.wip,html[data-guest] a[href="#notes"],html[data-guest] .ag-btn,html[data-guest] .mini-ag{display:none!important}
+html[data-guest] #portal [data-private],html[data-guest] a[href="#notes"],html[data-guest] .ag-btn,html[data-guest] .mini-ag{display:none!important}
 html[data-guest] .set-danger .own,html:not([data-guest]) .set-danger .guest{display:none}
 html[data-locked] #sky{opacity:0}
 #sky{transition:opacity 1.2s ease}

@@ -503,6 +503,11 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
         next:Math.round(document.getElementById("homeNext").getBoundingClientRect().bottom),
         last:Math.max(...[...document.querySelectorAll("#portal .p-card")].map(c=>c.getBoundingClientRect().bottom))<=document.getElementById("tourStart").getBoundingClientRect().top}; });
     ok(r.last,`${mobile?"mobile":"desktop"}: "Start the journey" comes after the cards`);
+    if(!mobile){
+      const c=await p.evaluate(()=>{ const a=document.getElementById("homeNolan"); return {mark:!!a.querySelector(".p-ic svg.i-nolan"),crane:!!document.querySelector(".i-crane"),
+        border:getComputedStyle(a).borderTopStyle,tag:!!a.querySelector(".wip-tag"),shown:getComputedStyle(a).display!=="none"}; });
+      ok(c.mark&&!c.crane&&c.border==="solid"&&!c.tag&&c.shown,`the Nolan card is finished: its galaxy mark, no crane, no dashed "under construction" look (${JSON.stringify(c)})`);
+    }
     ok(r.next>0&&r.next<=r.h,`${mobile?"mobile":"desktop"}: the next class fits home's first screen (bottom ${r.next} of ${r.h})`);
     await p.click("#homeMore"); await p.waitForTimeout(900);
     const after=await p.evaluate(()=>{ const r=document.querySelector("#homeUc3m").getBoundingClientRect(); return r.top>=0&&r.top<innerHeight; });
@@ -572,7 +577,7 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     await p.waitForFunction(()=>!document.getElementById("portal").hidden&&!Universe.busy(),null,{timeout:20000}).catch(()=>{});
     const r=await p.evaluate(()=>({guest:document.documentElement.hasAttribute("data-guest"),home:!document.getElementById("portal").hidden,
       greeting:document.getElementById("homeGreeting").textContent,demo:!!SUBJECTS.alg&&!SUBJECTS.ed,card:document.querySelector("#homeUc3m b").textContent,
-      nolan:getComputedStyle(document.querySelector("#portal .p-card.wip")).display,notes:getComputedStyle(document.querySelector('#portal .p-tool[href="#notes"]')).display,
+      nolan:getComputedStyle(document.querySelector("#portal #homeNolan[data-private]")).display,notes:getComputedStyle(document.querySelector('#portal .p-tool[href="#notes"]')).display,
       explore:getComputedStyle(document.getElementById("tourStart")).display,device:localStorage.getItem("nolan-device"),errors:CHECK.errors.length,warnings:CHECK.warnings.length}));
     r.cloud=p.requests.filter(u=>/jsonbin/.test(u)).length;
     r.files=p.requests.filter(u=>/\/(data|eval|config|demo)\.js/.test(u)).map(u=>u.replace(/^.*\//,"").replace(/\?.*/,""));

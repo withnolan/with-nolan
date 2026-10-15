@@ -66,6 +66,9 @@ const Home=(function(){
   /* ---------- the sights, in the order of home's list (and of the arrows between them) ----------
      Each: its colour and its icon. Its words are in i18n.js (sight.<id>.name, tag, fact, text);
      where it is and how the camera frames it, in universe.js (PLACES) and wonders.js. */
+  /* the Nolan card carries the section's own mark: its galaxy */
+  const nolanIc=$("#homeNolan .p-ic"); if(nolanIc) nolanIc.innerHTML=NOLAN_SVG;
+
   const SIGHTS=[
     {id:"earth", ac:"#6CB8FF", icon:`<svg viewBox="0 0 48 48" aria-hidden="true"><circle class="f" cx="22" cy="26" r="16"/><path class="f2" d="M12.4 19.6c2.6-.5 4.4 1 6.3.4 2.2-.7 3.7 1 3.2 3.2-.5 2.4-3 2.7-3.2 5-.2 2 1.7 3.4 1 5.4-.4 1.2-1.6 1.9-2.9 1.6"/><path d="M27.2 13c.4 2.6 2.8 3 3.4 5.2.5 2-1.2 3.4.3 5.3 1.3 1.6 3.6 1.1 4.9 2.7"/><circle class="dot" cx="40.5" cy="9.5" r="3"/></svg>`},
     {id:"moon", ac:"#D8DEEA", icon:`<svg viewBox="0 0 48 48" aria-hidden="true"><path class="f2" d="M23.8 7A17 17 0 1 0 40 29.7A14 14 0 1 1 23.8 7z"/><circle class="dot" cx="14" cy="26" r="1.9"/><circle class="dot" cx="21" cy="36" r="1.4"/><circle class="dot" cx="11" cy="18" r="1.1"/></svg>`},

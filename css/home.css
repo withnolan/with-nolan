@@ -58,22 +58,14 @@ html:not([data-motion=full]) .portal .p-view{animation:none}
 }
 .p-ic svg{width:44px;height:44px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
 .i-uni .seal{fill:currentColor;stroke:none;transform-box:fill-box;transform-origin:center;transition:transform .35s var(--spring)}
-.i-crane .hook{transform-box:view-box;transform-origin:34px 12px;animation:sway 4.5s ease-in-out infinite alternate}
-@keyframes sway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
 .p-txt b{display:block;font-size:1.7rem;font-weight:800;letter-spacing:-.035em;line-height:1}
 .p-txt span{display:block;margin-top:7px;font-size:.86rem;color:var(--ink-2)}
-.p-txt span [data-term],.p-txt span [data-i18n]:not(.wip-tag){display:inline;margin:0;font-size:inherit}
+.p-txt span [data-term],.p-txt span [data-i18n]{display:inline;margin:0;font-size:inherit}
 .portal:focus{outline:none}
-.p-txt .wip-tag{
-  display:inline-flex;align-items:center;gap:7px;padding:3px 10px 3px 8px;border-radius:99px;
-  font-size:.74rem;font-weight:700;color:#FFB866;background:rgba(255,166,64,.12);border:1px dashed rgba(255,166,64,.45);
-}
-.p-txt .wip-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#FFA640;box-shadow:0 0 8px #FFA640}
 .p-info{display:flex;flex-direction:column;gap:5px;font-size:.84rem;color:var(--ink-2);min-height:4.4em}
 .p-info i{font-style:normal;font-weight:700;color:var(--ac)}
 .p-go{margin-top:auto;font-size:.85rem;font-weight:700;color:var(--ac)}
 .p-go em{display:inline-block;font-style:normal;transition:transform .3s var(--spring)}
-.p-card.wip{border-style:dashed;border-color:rgba(255,166,64,.3)}
 
 /* ---------- the first screen is the hero alone ----------
    it fills the screen (under the padding of .p-in); where to go is further down, and a small
