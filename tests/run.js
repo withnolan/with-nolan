@@ -25,7 +25,8 @@
    · Settings: the passage, English, every text (and every sight's words)
      translated, English dates, the animation levels.
    · Astral: weather, the three galaxies (UC3M's golden bar low on the
-     left), the seven wonders, a supernova, the band of our galaxy, the
+     left), the seven wonders (Orion and the Pleiades round at any size),
+     a supernova, the band of our galaxy, the
      Earth and the Moon (at the opening and as a place of their own), the
      Moon's phase and meteor showers, Quality = Low and Medium, the tasks
      constellation.
@@ -665,13 +666,60 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const wn=await p.evaluate(()=>({list:Wonders.list(),broken:window.UNIVERSE_EXTRAS.filter(x=>x.broken).map(x=>x.id),nova:Wonders.nova(-.5,-.5,10),state:Wonders.state()}));
     ok(wn.list.join()==="orion,pleiades,ringneb,binary,antennae,nova,earth"&&!wn.broken.length&&wn.nova&&wn.state&&wn.state.k>0&&wn.state.at&&!p.errors.length,
       `the seven wonders compile and draw, and a supernova can flare (${JSON.stringify(wn)})`);
+    /* the Orion Nebula and the Pleiades are round at every size: nothing of them in their square's corners (their
+       star fields filled the whole square, so from afar they showed as a square picture of stars). Each is drawn
+       alone, as seen from afar, from home and at its sight, and its pixels read back */
+    const sq=await p.evaluate(()=>{
+      const {HEAD,NOISE,SPRITE_VS}=UNIVERSE_SHADERS, cv=document.createElement("canvas"), gl=cv.getContext("webgl2"), out={};
+      const sh=(t,s)=>{ const x=gl.createShader(t); gl.shaderSource(x,s); gl.compileShader(x); return x; };
+      for(const id of ["orion","pleiades"]){
+        const pr=gl.createProgram(), u=n=>gl.getUniformLocation(pr,n);
+        gl.attachShader(pr,sh(gl.VERTEX_SHADER,SPRITE_VS)); gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,HEAD+NOISE+UNIVERSE_EXTRAS.find(x=>x.id===id).shaders.main));
+        gl.linkProgram(pr); gl.useProgram(pr);
+        out[id]=[30,60,200].map(h=>{
+          cv.width=cv.height=2*h; gl.viewport(0,0,2*h,2*h); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.uniform2f(u("uCss"),2*h,2*h); gl.uniform2f(u("uC"),h,h); gl.uniform2f(u("uHalf"),h,h); gl.uniform1f(u("uRot"),0);
+          gl.uniform1f(u("uT"),30); gl.uniform1f(u("uA"),1); gl.uniform1f(u("uS"),(id.length*7.31)%10); gl.uniform2f(u("uPar"),0,0);
+          gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+          const px=new Uint8Array(16*h*h); gl.readPixels(0,0,2*h,2*h,gl.RGBA,gl.UNSIGNED_BYTE,px);
+          let corner=0, inside=0;   /* the brightest pixel outside the circle in the square, and inside it */
+          for(let i=0;i<4*h*h;i++){ const v=Math.max(px[4*i],px[4*i+1],px[4*i+2]), r=Math.hypot((i%(2*h)+.5)/h-1,(Math.floor(i/(2*h))+.5)/h-1);
+            if(r>1) corner=Math.max(corner,v); else inside=Math.max(inside,v); }
+          return [h,corner,inside];
+        });
+      }
+      return out;
+    });
+    ok(Object.values(sq).every(l=>l.every(([h,c,i])=>c<=2&&i>200)),`the Orion Nebula and the Pleiades are round at every size, nothing square round them ([half size, corners, inside]: ${JSON.stringify(sq)})`);
+    /* its blast reaching us is one moment, not a cut: its passing runs smoothly through the hit, grows from nothing
+       and ends in nothing; the sky starts to shake before the hit (a rumble that grows), is still once it has
+       passed, and never shakes with animations turned down */
+    const pa=await p.evaluate(async()=>{
+      const P=Wonders.passage, ks=Object.keys(P(0)).filter(k=>k!=="pass"), END=P(0).pass;
+      let jump=[];
+      for(let s=-8;s<=END+.5;s+=.05){ const a=P(s), b=P(s+.05);
+        ks.forEach(k=>{ const d=Math.abs(b[k]-a[k]); if(!isFinite(a[k])||d>(k==="flash"?.4:.15)) jump.push(`${k}@${s.toFixed(2)}:${d.toFixed(2)}`); }); }
+      const start=P(-6.5), end=P(END);
+      /* (a software graphics card draws a frame now and then: watch for a while, not a few frames. The supernova
+         moves on meanwhile, so where it must stay still the watch is short, where it must move, longer) */
+      const shook=async(age,motion,ms)=>{ document.documentElement.dataset.motion=motion||"full"; const cv=document.getElementById("universe");
+        cv.style.transform=""; Wonders.nova(.6,-.5,age); const t0=performance.now(); let tf="";
+        while(!tf&&performance.now()-t0<ms){ await new Promise(r=>requestAnimationFrame(r)); tf=cv.style.transform; }
+        document.documentElement.dataset.motion="full"; return !!tf; };
+      const h=Wonders.hit();
+      return {jump:jump.slice(0,4),start:[start.close,start.flash,start.dens,start.streak].every(x=>x<1e-3),end:[end.flash,end.dens,end.streak].every(x=>x<1e-3),
+        far:await shook(h-7,"full",1500),near:await shook(h-.7,"full",2500),hit:await shook(h+.15,"full",6000),calm:await shook(h+.15,"basic",2500),gone:await shook(h+16,"full",1500)};
+    });
+    ok(!pa.jump.length&&pa.start&&pa.end&&!pa.far&&pa.near&&pa.hit&&!pa.calm&&!pa.gone&&!p.errors.length,
+      `a supernova's blast reaches us in one smooth moment: no jump through the hit, from nothing to nothing; a rumble before it, no shake with animations turned down (${JSON.stringify(pa)})`);
     /* Settings: "Supernova now" sets a quick one off at once and leaves just the sky to watch it; turning
        supernovas off is saved without reloading the page */
     await p.evaluate(()=>{ window.__stay=1; location.hash="#settings"; });
     await p.waitForFunction(()=>{ const b=document.getElementById("novaNow"); return b&&b.offsetParent; },null,{timeout:10000}).catch(()=>{});
     await p.click("#novaNow").catch(()=>{});
     const nv=await p.evaluate(()=>({view:View.on(),st:Wonders.state()}));
-    ok(nv.view&&nv.st&&nv.st.k>=0&&nv.st.k<.2&&nv.st.at,`Settings: "Supernova now" sets one off at once and shows just the sky (${JSON.stringify(nv)})`);
+    ok(nv.view&&nv.st&&nv.st.k>-.01&&nv.st.k<.2&&nv.st.at,   /* (k: a hair under 0 is the fake clock's noise, not a late start) */
+      `Settings: "Supernova now" sets one off at once and shows just the sky (${JSON.stringify(nv)})`);
     await p.keyboard.press("Escape");
     await p.click('.seg[data-key="nova"] button[data-value="off"]').catch(()=>{});
     const off=await p.evaluate(()=>({nova:SETTINGS.nova,saved:JSON.parse(localStorage.getItem("settings")).nova,stay:window.__stay}));

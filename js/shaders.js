@@ -576,6 +576,9 @@ uniform vec4 uBH;         /* the hole seen from the camera (x right, y up, z ahe
 uniform vec4 uBHn;        /* the axis of its disk (same axes), time */
 uniform float uFpx;       /* focal length in px of the picture */
 uniform vec4 uOcc[2];     /* things in front of the hole (the Earth, the Moon): centre and radius in px of the picture, w: on */
+uniform vec4 uLens;       /* a supernova's blast rushing at us (api.lens): its star (uv), how far the sky streaks away from it, how far the colours split */
+uniform vec4 uLens2;      /* its front: radius and width (shares of the height), how much it bends the sky; reads per streak */
+uniform vec2 uVeil;       /* how much of the black hole it hides: its gas (inside its front), its front itself */
 /* the glow is a quarter-size half-float picture: blended here by hand (four exact reads), as in UP_FS, because
    the phones that cannot blend half floats showed it as a grid of 4×4 squares */
 vec3 bloomAt(vec2 uv){
@@ -585,6 +588,36 @@ vec3 bloomAt(vec2 uv){
   return mix(mix(a,c,f.x),mix(d,e,f.x),f.y);
 }
 float h(vec2 p){ vec3 p3=fract(vec3(p.xyx)*.1031); p3+=dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }
+/* the picture as the blast rushes at us: streaked away from the star (a few reads along the line to it, each pixel
+   starting at its own random step, so a star draws a line, not a row of dots), its colours split outwards from the
+   star as it hits. Only while one passes: otherwise one read */
+vec3 sceneAt(vec2 uv){
+  vec3 c=texture(uHdr,uv).rgb;
+  if(uLens.z<=0.&&uLens.w<=0.) return c;
+  vec2 d=uv-uLens.xy;
+  if(uLens.w>0.) c=vec3(texture(uHdr,uLens.xy+d*(1.-uLens.w)).r,c.g,texture(uHdr,uLens.xy+d*(1.+uLens.w)).b);
+  if(uLens.z>0.){
+    int n=int(uLens2.w); float j=h(gl_FragCoord.xy+fract(uTime)*61.), ws=1.;
+    for(int i=1;i<16;i++){ if(i>=n) break;
+      float k=(float(i)-j)/float(n-1), wk=1.-k*.6;          /* fainter towards the star: a tail behind each light */
+      c+=texture(uHdr,uLens.xy+d*(1.-uLens.z*k)).rgb*wk; ws+=wk; }
+    c/=ws;
+  }
+  return c;
+}
+/* and its front bends the sky behind it a little, like a lens of compressed gas sweeping past */
+vec2 bent(vec2 uv){
+  if(uLens2.z<=0.) return uv;
+  vec2 asp=vec2(uRes.x/uRes.y,1.), d=(uv-uLens.xy)*asp; float r=length(d), x=(r-uLens2.x)/uLens2.y;
+  return uv-d/max(r,1e-4)*uLens2.z*x*exp(-x*x)/asp;
+}
+/* how much of the black hole its blast hides here: everything of it lies in front of the hole, so the hole is clear
+   ahead of the front, goes behind the front as it sweeps over it and stays behind its gas */
+float veilAt(){
+  if(uVeil.x+uVeil.y<=0.) return 0.;
+  float r=length((vUv-uLens.xy)*vec2(uRes.x/uRes.y,1.)), x=(r-uLens2.x)/uLens2.y;
+  return clamp(max(uVeil.x*smoothstep(uLens2.x+uLens2.y,uLens2.x-2.*uLens2.y,r),uVeil.y*exp(-x*x)),0.,1.);
+}
 float h31(vec3 p){ p=fract(p*.1031); p+=dot(p,p.zyx+31.32); return fract((p.x+p.y)*p.z); }
 float vn3(vec3 p){ vec3 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
   return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
@@ -636,7 +669,7 @@ float knots(float r,vec2 xy){
 void main(){
   vec2 uv=vUv; vec3 add=vec3(0.); float hole=0., bgT=1.;
   /* the hole is traced over everything: not where something nearer stands in front of it */
-  float bhk=uBH.w;
+  float vl=veilAt(), bhk=uBH.w*(1.-vl);
   for(int i=0;i<2;i++) if(uOcc[i].w>.5&&length(gl_FragCoord.xy-uOcc[i].xy)<uOcc[i].z) bhk=0.;
   if(bhk>0.){
     vec3 rd=normalize(vec3((gl_FragCoord.xy-uRes*.5)/uFpx,1.));
@@ -701,16 +734,17 @@ void main(){
       }
       /* a soft pink glow around it, and a faint blue-violet haze farther out */
       if(b>2.6) add+=(vec3(1.,.38,.82)*.1*exp(-(b-2.6)*.4)+vec3(.45,.4,1.)*.045*exp(-b*.1))*(1.-smoothstep(RI,RI*1.5,b));
-      add*=uBH.w; hole*=uBH.w; bgT=mix(1.,bgT,uBH.w);
+      add*=bhk; hole*=bhk; bgT=mix(1.,bgT,bhk);
     }
   }
   /* where the bent ray points off the picture there is nothing to show: the unbent sky, faded in at the border */
-  vec3 bgc=texture(uHdr,vUv).rgb*uOutK+bloomAt(vUv)*uBloomK*uOutK;
+  vec2 sv=bent(vUv);
+  vec3 bgc=sceneAt(sv)*uOutK+bloomAt(sv)*uBloomK*uOutK;
   /* a pixel the half-float picture could not hold (NaN or infinity): the glow around it instead of a black dot */
   if(any(isnan(bgc))||any(isinf(bgc))) bgc=bloomAt(vUv)*(1.+uBloomK)*uOutK;
   if(uv!=vUv){
     float inside=uv.x<0.?0.:smoothstep(0.,.03,min(min(uv.x,1.-uv.x),min(uv.y,1.-uv.y)));
-    if(inside>0.) bgc=mix(bgc,texture(uHdr,uv).rgb*uOutK+bloomAt(uv)*uBloomK*uOutK,inside);
+    if(inside>0.) bgc=mix(bgc,texture(uHdr,uv).rgb*uOutK+bloomAt(uv)*uBloomK*uOutK,inside*(1.-vl));
   }
   vec3 c=bgc*bgT*(1.-hole)+add*uOutK;
   c=1.-exp(-c*uExp);

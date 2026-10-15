@@ -56,9 +56,9 @@ const Universe=(function(){
      robot: automated tests (a software GPU); ?tier=phone or ?tier=desk forces one */
   const phone=matchMedia("(max-width:760px),(pointer:coarse)").matches;
   const TIERS={
-    robot:{k:.07,map:256,scale:.4,maxScale:.5,steps:[4,8],far:1500,field:500,bloom:false,neb:256,band:256,bandStars:300,gc:20,vol:1},
-    phone:{k:.36,map:1024,scale:.8,maxScale:1.5,steps:[8,20],far:5000,field:900,bloom:true,neb:640,band:2048,bandStars:3500,gc:60,vol:.5},
-    desk:{k:1,map:2048,scale:1,maxScale:1.5,steps:[12,30],far:9000,field:1400,bloom:true,neb:1024,band:2800,bandStars:9000,gc:130,vol:.5}};
+    robot:{k:.07,map:256,scale:.4,maxScale:.5,steps:[4,8],far:1500,field:500,bloom:false,neb:256,band:256,bandStars:300,gc:20,vol:1,taps:4},
+    phone:{k:.36,map:1024,scale:.8,maxScale:1.5,steps:[8,20],far:5000,field:900,bloom:true,neb:640,band:2048,bandStars:3500,gc:60,vol:.5,taps:6},
+    desk:{k:1,map:2048,scale:1,maxScale:1.5,steps:[12,30],far:9000,field:1400,bloom:true,neb:1024,band:2800,bandStars:9000,gc:130,vol:.5,taps:10}};
   const asked=(location.search.match(/[?&]tier=(robot|phone|desk)\b/)||[])[1];
   const robot=!asked&&!!navigator.webdriver;
   const TIER=TIERS[asked||(robot?"robot":phone?"phone":"desk")];
@@ -794,7 +794,7 @@ const Universe=(function(){
   let frameNo=0, starsFade=1, flightFromGate=0, settled=0, dead=false;
   function render(boost){
     if(!gl||lost||!ok) return;
-    frameNo++; occluders.length=0;
+    frameNo++; occluders.length=0; lens=null;
     if(!queue.length&&Object.keys(G).length===IDS.length+COMPANIONS.length) settled++;
     const f=float(); cam={x:base.x+f.x,y:base.y+f.y,z:base.z+f.z};
     camR=base.yaw||base.pitch?turn(base.yaw||0,base.pitch||0):[1,0,0, 0,1,0, 0,0,1];
@@ -871,10 +871,15 @@ const Universe=(function(){
     u=P.comp.u; gl.useProgram(P.comp.p);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,hdr.t); gl.uniform1i(u.uHdr,0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,bloomA.t); gl.uniform1i(u.uBloom,1);
-    gl.uniform1f(u.uExp,1.1); gl.uniform1f(u.uBloomK,TIER.bloom?.55:0); gl.uniform1f(u.uTime,now%100); gl.uniform1f(u.uOutK,1);
+    /* a supernova passing (api.lens): its flash overexposes the picture and swells the glow */
+    const L=lens||NO_LENS;
+    gl.uniform1f(u.uExp,1.1*(1+L.flash)); gl.uniform1f(u.uBloomK,TIER.bloom?.55*(1+.5*L.flash):0); gl.uniform1f(u.uTime,now%100); gl.uniform1f(u.uOutK,1);
     gl.uniform2f(u.uRes,RW,RH);
+    gl.uniform4f(u.uLens,L.x/W,1-L.y/H,L.streak,L.fringe);
+    gl.uniform4f(u.uLens2,L.front/H,Math.max(L.width,1)/H,L.bend,TIER.taps);
     const bh0=blackHole(), bh=bh0&&bh0.a>0?bh0:null;
     gl.uniform4f(u.uBH,bh?bh.q[0]:0,bh?bh.q[1]:0,bh?bh.q[2]:1,bh?starsFade*bh.a:0);
+    gl.uniform2f(u.uVeil,L.veil,L.sheet);      /* (a supernova's blast hides the hole as it hides everything else) */
     gl.uniform4f(u.uBHn,bh?bh.n[0]:0,bh?bh.n[1]:1,bh?bh.n[2]:0,t);
     gl.uniform1f(u.uFpx,F*scale);
     /* the Earth and the Moon, when nearer than the hole: it is not traced where they stand */
@@ -948,6 +953,11 @@ const Universe=(function(){
     toCam:p=>toCam(p,cam,camR), view:()=>[RW,RH,W,F],
     /* something solid drawn this frame (css px, depth): the black hole is not traced through it */
     occlude:(x,y,r,d)=>{ occluders.push({x,y,r,d}); },
+    /* this frame only, the whole picture as a blast rushes at us (the supernova): the sky streaks away from a point
+       (x, y css px; streak: a share of the way to it), its colours split (fringe), it is overexposed (flash: exposure
+       × 1 + flash), a front of radius front (width, css px) bends the sky behind it (bend: a share of the height),
+       and the black hole hides behind it: veil (0 … 1) inside the front, sheet on the front itself */
+    lens:o=>{ lens={...NO_LENS,...o}; },
     /* how far a wonder has faded in since it became ready (0 to 1; it asks for frames until 1) */
     appear(x){ const k=Math.min(1,Math.max(0,(performance.now()-(x.readyAt||0))/1400)); if(k<1) need(); return k*k*(3-2*k); },
     /* a place seen from home (at: fraction of the half screen, computer d / phone m), at depth z */
@@ -963,6 +973,8 @@ const Universe=(function(){
   };
   let extraFailed=false;
   const occluders=[];
+  const NO_LENS={x:0,y:0,streak:0,fringe:0,flash:0,veil:0,sheet:0,front:0,width:1,bend:0};
+  let lens=null;
   function extras(phase,t,now){
     gl.enable(gl.BLEND);
     for(const x of EXTRAS){

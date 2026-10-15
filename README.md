@@ -381,7 +381,13 @@ How they are made:
 | **Vampire star** (`binary`) | a red giant pulled into a point towards a white dwarf, its gas streaming onto a disk; they orbit in 70 s and hide each other. |
 | **Antennae** | two colliding galaxies with merging cores, pink knots of new stars and two long tidal tails. The pair turns and rocks in 3D, the cores circle each other, the arms turn, clumps of stars stream out along the tails, and each knot of new stars flares and dims on its own beat. |
 
-**Now and then, a supernova** (every 3–9 minutes, Animations = All; Settings → **Supernovas** turns them off, `SETTINGS.nova`): a far star flares blue-white. Its **blast wave** comes straight at us at a steady speed, so — like a real explosion seen from afar — it creeps out of the star for about 20 s, then in its last second rushes over the whole sky (`waveAt()`: a sphere of radius x at distance 1 looks x/√(1−x²) wide), with a soft violet glow of ionised gas behind its front. It leaves the screen at its farthest corner the moment it reaches us (24 s). **No two are alike:** each draws its own look (`v` in `spawnNova`: how purple, how thick and ragged its shell, how bright its flash, how hard its push), and its passing depends on where the star is: the flash spreads from the star's side of the screen and is brightest there, clumps of hot gas rush past outwards from it, it cools to orange or violet, and the sky is pushed away from the star as it shakes (not with animations turned down). Then the star fades through yellow and red and leaves a small ragged shell. **Supernova now** in Settings (`Wonders.boom()`) sets a quick one off (its approach three times faster, `sp`) and shows just the sky to watch it; `Wonders.nova(x, y, age)` sets one off (tests).
+**Now and then, a supernova** (every 3–9 minutes, Animations = All; Settings → **Supernovas** turns them off, `SETTINGS.nova`): a far star flares blue-white. Its **blast wave** comes straight at us at a steady speed, so — like a real explosion seen from afar — it creeps out of the star for about 20 s, then in its last second rushes over the whole sky (`waveAt()`: a sphere of radius x at distance 1 looks x/√(1−x²) wide) and reaches us about 23.4 s after the flare (`HIT`·`WAVE_T`). **Its passing is one continuous moment, never a cut** (`passage()`: smooth curves of the seconds from the hit, in real time even for the quick one):
+- **Coming:** over its last seconds its light swells from the star's side, the near side of its shell glows thicker and thicker inside its front, the sky's stars stretch into streaks away from the star and a low rumble grows. In its last second the front sweeps over the screen as a bright curved sheet from the star's side to the farthest corner, bending the sky behind it.
+- **The hit:** a brief overexposure, brightest on the star's side (never one flat white frame), the colours split outwards from the star and a jolt pushes the sky away from it.
+- **Inside it** for a few seconds: hot gas all round, drawn over the sky so it hides it (the black hole too), its clumps and threads rushing past outwards in depth (two sheets streaming along log r, the nearer faster), cooling from blue-white through blue and violet to rose or orange and thinning until the sky comes back through an afterglow (gone at 14 s, `PASS`).
+- The streaks, the bending, the overexposure, the colour fringes and hiding the black hole belong to the whole picture: the supernova asks for them each frame with `api.lens()`, and the last step (`COMP_FS`) applies them.
+
+**No two are alike:** each draws its own look (`v` in `spawnNova`: how purple, how thick and ragged its shell, how bright its flash, how hard its push, gas in lumps or in threads, how fast it rushes past), and its passing depends on where the star is. No shake with animations turned down. Then the star fades through yellow and red and leaves a small ragged shell. **Supernova now** in Settings (`Wonders.boom()`) sets a quick one off (its approach three times faster, `sp`) and shows just the sky to watch it; `Wonders.nova(x, y, age)` sets one off and `Wonders.passage(s)` gives its passing (tests).
 
 ### The Earth and the Moon
 
@@ -407,6 +413,7 @@ Both sit far behind home: the opening starts beside them, and the sights `#earth
 - **While scrolling** the sky keeps moving at a lower rate (about 30 fps on a computer, 22 on a phone). It pauses when the tab is hidden and after 2 minutes idle.
 - **Phone fixes:** half-float pictures are blended by hand (`UP_FS`, `bloomAt`), since some phones never blend them (stairs of squares); stars are capped and dust is never fully opaque, so no NaN black dots; dust grids are 8-bit (`R8`).
 - **Sharp stars at any zoom:** a wonder's small stars use `psf()` / `starField()` (in `COMMON`): a core about one screen pixel wide (from `pixelQ()`, the size of a pixel in the wonder's units), a faint glow and a halo only for bright ones, real star colours (`starTint`) and a steep luminosity function. Stars sized in the wonder's own units grew into soft grey blobs as the camera came close.
+- **Round from afar:** from far away a `starField()`'s cells shrink to a few pixels while each star stays a pixel wide, so at full light it thickened into a bright sheet of stars cut square. Now a star's light falls with the square of its distance once its cell is under 2.5 px and is gone under 1 px, and under 6 px it is looked for in the nine nearest cells and ends softly before them (round, never cut). And whatever is spread over a whole wonder (a star field, gas) must thin out round before its square's edge (`ballFade()`), or from afar the square shows, like a picture pasted on the sky.
 - **Seamless angular noise:** noise along an angle from `atan` must use `fbmA()`, not `fbm(vec2(angle*k, y))`: `atan` jumps from π to −π and plain noise shows that jump as a straight line out of the centre.
 - Test hooks: `Universe.seek(seconds)` jumps time, `Universe.shoot()` sends a shooting star and a comet.
 
@@ -476,8 +483,8 @@ skyWonder("id", {at:{d:[x,y], m:[x,y]}, z, R, rot, blend:"add"|"over", sight, vi
 ```
 
 - `at`: where it sits seen from home (share of half the screen, computer / phone); `z`: how far; `R`: its radius in space.
-- The shader gets `vQ` (−1…1 across the square), `uT` time, `uA` fade, `uS` a seed and `uPar` (parallax), plus `fbm`, `fbmA`, `h12` and, with `N3`, `vn3` / `fbm3`.
-- Something that moves through space writes its own `{id, shaders, layout(api), draw(api, phase, t, now), sights}` and pushes it to `window.UNIVERSE_EXTRAS` (see the supernova). Multiply its fade by `api.appear(x)`.
+- The shader gets `vQ` (−1…1 across the square), `uT` time, `uA` fade, `uS` a seed and `uPar` (parallax), plus `fbm`, `fbmA`, `h12`, the stars (`psf`, `starField`), `edgeFade()` / `ballFade()` and, with `N3`, `vn3` / `fbm3`. Whatever fills it must fade out round before the square's edge (see *Round from afar*).
+- Something that moves through space writes its own `{id, shaders, layout(api), draw(api, phase, t, now), sights}` and pushes it to `window.UNIVERSE_EXTRAS` (see the supernova). Multiply its fade by `api.appear(x)`. An effect on the whole picture for one frame (streaks, overexposure, colour fringes) goes through `api.lens({...})`.
 - A shader that fails to compile is left out with a warning. Add the wonder to the list in the wonders test.
 
 ### A new setting
@@ -493,7 +500,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.90**. In `index.html`, bump the footer (`v0.90`; the entry screen copies it) and every `?v=0.90`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.91**. In `index.html`, bump the footer (`v0.91`; the entry screen copies it) and every `?v=0.91`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -528,7 +535,7 @@ What they cover:
 | Calendar | the red line at different times, minute and midnight changes, dates without a day, multi-day windows |
 | Cloud | failed or slow first reads, old ticks migrated, the device copy first, grades with a comma |
 | Home and settings | the window, just the sky, Nolan, the reload fade, English, every text translated, the animation levels |
-| Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders, a supernova, Quality Low and Medium, Effects, the constellation |
+| Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders (the Orion Nebula and the Pleiades round at every size), a supernova and its smooth passing, Quality Low and Medium, Effects, the constellation |
 | Other | compact header, swipe, idle, offline (opens and keeps a tick made offline) |
 
 **Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
