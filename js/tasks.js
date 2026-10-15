@@ -68,9 +68,11 @@
       return `<g class="c-star${done[i]?" on":""}${fresh?" fresh":""}" style="--sc:${sc}" transform="translate(${p[0].toFixed(1)} ${p[1].toFixed(1)})">`+
         `<g class="c-pop"><circle r="14" class="halo"/><circle r="${done[i]?3.4:2}" class="core"/></g></g>`;
     }).join("");
-    box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(tn(count===n?"tasks.constellationDone":"tasks.constellation",count,{total:n}))}">`+
+    /* none lit yet: an invitation, not "0 of 7" */
+    const label=count===n?t("tasks.constellationDone"):count===0?t("tasks.constellationZero",{total:n}):tn("tasks.constellation",count,{total:n});
+    box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">`+
       `<g class="c-lines">${lines}</g>${stars}</svg>`+
-      `<p>${esc(count===n?t("tasks.constellationDone"):tn("tasks.constellation",count,{total:n}))}</p>`;
+      `<p>${esc(label)}</p>`;
     shownDone=done;
   }
   document.addEventListener("change",e=>{ if(e.target.matches("#subjectTasks input, #generalTasks input")) constellation(true); });

@@ -396,6 +396,21 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   }
 
+  if(section("Voice")){
+  {
+    /* the words with a voice: tasks, the constellation at zero, a subject without grades, the gate's line */
+    const p=await open(b,{hash:"tasks"});
+    const r=await p.evaluate(()=>({lead:document.querySelector("#tasks .shead p").textContent,stars:document.querySelector("#tasksConstellation p").textContent,
+      zero:[...document.querySelectorAll("[id^=res-main]")].map(x=>x.textContent).join("|")}));
+    await p.context().close();
+    const g=await open(b,{locked:true});
+    const line=await g.evaluate(()=>{ const l=document.querySelector("#gateStart .g-line"); return l&&l.offsetWidth?l.textContent:""; });
+    await g.context().close();
+    ok(/enciende una estrella/.test(r.lead)&&/estrellas esperan a que las enciendas/.test(r.stars)&&/Aún sin notas/.test(r.zero)&&/organizador dentro de un universo/.test(line),
+      `the words have a voice (${JSON.stringify({...r,line})})`);
+  }
+  }
+
   if(section("Ended exams")){
   {
     /* an exam that has ended is never "today" again: ED, Thu 15 Oct 09:00–10:30. At 10:28 and 10:29 it is "hoy";
