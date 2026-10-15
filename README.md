@@ -502,7 +502,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.95**. In `index.html`, bump the footer (`v0.95`; the entry screen copies it) and every `?v=0.95`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.96**. In `index.html`, bump the footer (`v0.96`; the entry screen copies it) and every `?v=0.96`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -513,7 +513,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **147 checks** in a real browser (151 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **149 checks** in a real browser (153 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 

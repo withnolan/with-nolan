@@ -119,7 +119,14 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
       `${mobile?"mobile":"desktop"}: once the first view is chosen the page shows (data-booting is gone)`);
     if(mobile) ok(r.width<=390,`mobile: nothing sticks out of the screen (${r.width}px)`);
     if(r.warnings) console.log(`    (the checker leaves ${r.warnings} warnings in the console)`);
+    if(!mobile) ok(!await p.evaluate(()=>document.documentElement.hasAttribute("data-locked")),"a device that knows the PIN opens without the gate");
     await p.context().close();
+  }
+  {
+    /* the PIN's hash is written twice (index.html's <head> and gate.js): a version bump once changed "0094" in it */
+    const fs=require("fs"), read=f=>fs.readFileSync(path.resolve(__dirname,"..",f),"utf8");
+    const head=(read("index.html").match(/k!=="([^"]+)"/)||[])[1], gate=(read("js/gate.js").match(/[0-9a-f]{64}/)||[])[0];
+    ok(head===DEVICE&&gate===DEVICE,`the PIN's hash is the same in index.html, gate.js and the tests (${head})`);
   }
   }
 
