@@ -175,3 +175,5 @@ details.week-notes ul.week-events{list-style:none;margin:0;padding:2px 20px 12px
 @media (max-width:380px){
   .trow time{flex:0 0 48px}
 }
+/* the red line passes under a row's words, never across "12:15" */
+.trow>*{position:relative;z-index:6}

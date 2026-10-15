@@ -21,3 +21,9 @@
 .ics-btn{display:inline-flex;align-items:center;gap:7px}
 .ics-btn svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .ics-note{color:var(--ink-3);font-size:.8rem;max-width:60ch}
+/* a phone: the filters are one row that scrolls sideways, so the first exam is on the first screen */
+@media (max-width:620px){
+  .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-14px;margin-right:-14px;padding:0 14px 2px;overscroll-behavior-x:contain}
+  .filters::-webkit-scrollbar{display:none}
+  .filters button{flex:0 0 auto;white-space:nowrap}
+}

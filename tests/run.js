@@ -433,6 +433,22 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   }
 
+  if(section("Small fixes")){
+  {
+    /* a phone, Thu 15 Oct 11:33: the exam filters are one row and the first exam is on the first screen; this
+       morning's ED exam (ended at 10:30) is dimmed already; the red now line passes under the rows' words */
+    const p=await open(b,{hash:"exams",mobile:true,time:"2026-10-15T11:33:00"});
+    const r=await p.evaluate(()=>{ const f=document.getElementById("examFilters"), row=document.querySelector("#examRows tr");
+      const ed=[...document.querySelectorAll("#examRows tr")].find(tr=>/15 oct/.test(tr.textContent)&&/Estructura de Datos|ED/.test(tr.textContent));
+      return {row:f.offsetHeight<60&&f.scrollWidth>f.clientWidth,first:Math.round(row.getBoundingClientRect().top),h:innerHeight,ed:!!ed&&ed.classList.contains("past")}; });
+    await p.goto(PAGE+"#schedule"); await p.waitForTimeout(300);
+    r.under=await p.evaluate(()=>{ const t=document.querySelector(".trow time"), l=document.querySelector(".now-line");
+      return !!t&&+getComputedStyle(t).zIndex>(l?+getComputedStyle(l).zIndex:5); });
+    ok(r.row&&r.first<r.h&&r.ed&&r.under,`small fixes: one row of filters, the first exam on screen, a finished exam dimmed, the now line under the words (${JSON.stringify(r)})`);
+    await p.context().close();
+  }
+  }
+
   if(section("Ended exams")){
   {
     /* an exam that has ended is never "today" again: ED, Thu 15 Oct 09:00–10:30. At 10:28 and 10:29 it is "hoy";

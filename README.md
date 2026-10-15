@@ -502,7 +502,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **1.02**. In `index.html`, bump the footer (`v1.02`; the entry screen copies it) and every `?v=1.02`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **1.03**. In `index.html`, bump the footer (`v1.03`; the entry screen copies it) and every `?v=1.03`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -513,7 +513,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **169 checks** in a real browser (173 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **170 checks** in a real browser (174 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -540,7 +540,7 @@ What they cover:
 | Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders (the Orion Nebula and the Pleiades round at every size), a supernova and its smooth passing, Quality Low and Medium, Effects, the constellation |
 | Other | compact header, swipe, idle, offline (opens and keeps a tick made offline) |
 
-**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Sky clear of words, Home details, Voice, Nolan details, Ended exams, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
+**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Sky clear of words, Home details, Voice, Nolan details, Small fixes, Ended exams, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
 
 **Add a test whenever you fix a bug.**
 
@@ -562,6 +562,21 @@ Run this on the owner's laptop (real graphics card: 3D screenshots are fast ther
 6. ✅ *Done 15 Oct: `creative/01-audit.md` (screenshots kept local, not in git).* **The creative director's audit:** run the agent in `.claude/agents/creative-director.md` (Task 1) on the whole site, desktop and phone, with internet for benchmarks; it writes `creative/01-audit.md`. Then summarise its proposals for the owner and let him choose.
 
 Tests: only the sections each change touches (`ONLY="Home,Guest"`, `ONLY="Planner,Home"`…). On the laptop, Playwright finds its own browser (`npx playwright install chromium` once).
+
+### Next session: the rest of the creative audit (15 Oct 2026)
+
+`creative/01-audit.md` holds the director's full audit. Done in v0.98–v1.03: ended exams never "today", the phone sky clear of the clock, a reading shade, compact phone cards, offline weather line, whole dock names, a sign-off, copy with a voice, Nolan's invitation / Día in parts with a now line / holidays in Semana, the opening only on home, one row of exam filters, the now line under the words. **Not wanted for now:** seeding `ROUTINE` (the owner will add his own). Still to do, larger, one validated step at a time:
+
+1. **The opening waits for the universe:** the N's stroke loops as a loader until `Universe.ready()`, then the camera flies alone for 2–3 s and the clock, the class and the weather land with it (`Home.intro()`, `router.js` start, `cinema.css` `.portal.intro`). Check the desktop timing in a real Chrome first (the audit measured ~7.5 s under automation).
+2. **A faint sky behind the entry screen** (only the far stars; nothing private is read before the PIN).
+3. **Home says what the sky knows:** one line such as "Esta noche: Luna creciente · Oriónidas activas" from `Astro.moon` / `Astro.shower`.
+4. **The planner's tints:** a small legend, or fewer tints (both `#planner` and `#nolan`).
+5. **Subjects:** a sticky row of the subjects' colours as anchors.
+6. **The Moon at `#earth`** read as a black disc on 15 Oct (a waxing crescent): check its lighting from that camera; raise the earthshine if it is right.
+7. Smaller copy: shorter Settings descriptions; "Empieza el viaje"'s subtitle; "Destino n de 11".
+8. Later features: one interaction on Gastos; the director's Task 2 (concepts) and Task 3 (brief) if wanted.
+
+Before a big release, run the whole suite once (it is long): many sections changed today and only the touched checks were run.
 
 ### Older notes
 

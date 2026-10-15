@@ -17,7 +17,7 @@
     const rows=evs.filter(e=>current==="all"||(current.startsWith("type_")?e.type===current.slice(5):e.subject===current));
     $("#examRows").innerHTML=rows.length?rows.map(e=>{
       const w=weekNumber(e), S=SUBJECTS[e.subject];
-      return `<tr${lastDay(e)<today?' class="past"':""}><td class='num'><b>${esc(eventLabel(e))}</b></td>`+
+      return `<tr${isOver(e,today,minutesOf(new Date()))?' class="past"':""}><td class='num'><b>${esc(eventLabel(e))}</b></td>`+
         `<td class='num' style='color:var(--ink-3)'>${w?t("exams.weekShort",{n:w}):"—"}</td>`+
         `<td><span class='sw' style='background:${S.color}'></span>${esc(S.name)}</td><td>${esc(e.what)}</td>`+
         `<td><span class='pill p-${e.type}'>${esc(e.weight)}</span></td></tr>`;
