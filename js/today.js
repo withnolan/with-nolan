@@ -107,15 +107,19 @@
       /* dates without a day show during their whole week */
       || e.noDay&&(()=>{ const w=weekOf(e.date); return w&&w.to>=shown&&w.from<=until; })()).sort(byDate);
     const box=$("#next7");
-    if(!evs.length){ box.innerHTML=`<div class="n7-empty">${esc(t("next7.empty"))}</div>`; return; }
-    box.innerHTML=`<div class="n7-head">${esc(t("next7.title"))}</div>`+evs.map(e=>{
-      const S=SUBJECTS[e.subject];
-      const urgent=!e.noDay&&isAssessment(e)&&daysBetween(shown,e.date)<=1;
-      return `<button class="n7-card ${e.type}${urgent?" urgent":""}" data-ev="${EVENTS.indexOf(e)}" style="--sc:${S.color}">`+
+    /* on today, what already ended (an exam this morning) stays, dimmed, as done: never "today" again */
+    const now=new Date(), m=shown===isoDate(now)?minutesOf(now):-1;
+    const html=!evs.length?`<div class="n7-empty">${esc(t("next7.empty"))}</div>`:
+      `<div class="n7-head">${esc(t("next7.title"))}</div>`+evs.map(e=>{
+      const S=SUBJECTS[e.subject], done=m>=0&&isOver(e,shown,m);
+      const urgent=!done&&!e.noDay&&isAssessment(e)&&daysBetween(shown,e.date)<=1;
+      return `<button class="n7-card ${e.type}${urgent?" urgent":""}${done?" done":""}" data-ev="${EVENTS.indexOf(e)}" style="--sc:${S.color}">`+
         `<span class="n7-txt"><b>${esc(t("event.title",{type:typeName(e),subject:S.name}))}</b>`+
         `<em>${esc(e.noDay?eventLabel(e):e.time||eventLabel(e))}</em></span>`+
-        `<span class="n7-when">${esc(whenLabel(e,shown))}</span></button>`;
+        `<span class="n7-when">${esc(done?t("when.done"):whenLabel(e,shown))}</span></button>`;
     }).join("");
+    /* rebuilt only when it changes (it is checked every minute) */
+    if(box.dataset.html!==html){ box.dataset.html=html; box.innerHTML=html; }
   }
 
   /* ---------- the week: first what falls (straight from EVENTS), then the ADVICE ---------- */
@@ -174,6 +178,7 @@
 
   /* ---------- time ---------- */
   document.addEventListener("minute",()=>{
+    if(shown===todayISO()) next7();                 /* an exam that just ended becomes "done" (only redrawn if it changed) */
     if($("#today").hidden) return;                  /* hidden: measured when shown again */
     if(shown===todayISO()) refresh();
   });

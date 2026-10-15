@@ -428,7 +428,7 @@ Home (`#home`, `js/home.js`, `css/home.css`) is a window over everything; the pa
 
 - **First screen:** the hero alone (logo, NOLAN, the time, the greeting, the next class, the weather). A small arrow (`#homeMore`) scrolls to the rest.
 - **The next class** (`#homeNext`, `drawNext` in `home.js`): always the class on now ("Now · 40 min left") or the first still to come, looked for day by day with `classesOn` (past weekends, breaks and the exam period): subject, when ("Today · 17:15", "Tomorrow · 09:00", "Thu 15 · 09:00"), room and campus. Built once, then only its words change each minute. Tapping it flies into UC3M, to the timetable (`router.js`).
-- **Further down:** the section cards (UC3M with the week, the class now and the next assessment; Nolan; Spending, which opens inside home at the black hole: `sceneOf` → `"blackhole"`, `renderSpending()`) and then **Start the journey** (`#tourStart`), which flies to the Earth and starts the tour.
+- **Further down:** the section cards (UC3M with the week, the next exam and the next submission, never one already over (`isOver` in `core.js`); Nolan; Spending, which opens inside home at the black hole: `sceneOf` → `"blackhole"`, `renderSpending()`) and then **Start the journey** (`#tourStart`), which flies to the Earth and starts the tour.
 - **A sight's page** (`#<id>`): the words sit low over a soft shade, so the sight fills the sky above: a line on what it is, its name, a few words and "Destination n of 11".
 - **The tour's dock** (`#tour`, from `SIGHTS`): every place with its icon and colour; arrows (and ← →) to the previous and next; the logo goes home.
 - **Back and Escape walk back the way you came** (`router.js`, `Home.visit`). Escape first closes an open detail panel.
@@ -502,7 +502,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.97**. In `index.html`, bump the footer (`v0.97`; the entry screen copies it) and every `?v=0.97`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.98**. In `index.html`, bump the footer (`v0.98`; the entry screen copies it) and every `?v=0.98`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -513,7 +513,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **160 checks** in a real browser (164 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **162 checks** in a real browser (166 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -540,7 +540,7 @@ What they cover:
 | Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders (the Orion Nebula and the Pleiades round at every size), a supernova and its smooth passing, Quality Low and Medium, Effects, the constellation |
 | Other | compact header, swipe, idle, offline (opens and keeps a tick made offline) |
 
-**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
+**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Ended exams, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
 
 **Add a test whenever you fix a bug.**
 

@@ -365,6 +365,28 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   }
 
+  if(section("Ended exams")){
+  {
+    /* an exam that has ended is never "today" again: ED, Thu 15 Oct 09:00–10:30. At 10:28 and 10:29 it is "hoy";
+       at 10:30 it is "hecho" in the next 7 days (changed in place) and home's card moves on */
+    const p=await open(b,{time:"2026-10-15T10:28:00",clock:"live",hash:"schedule"});
+    const card=()=>p.evaluate(()=>{ const c=[...document.querySelectorAll("#next7 .n7-card")].find(x=>/Estructura de Datos/.test(x.textContent));
+      return c?{when:c.querySelector(".n7-when").textContent,done:c.classList.contains("done")}:null; });
+    const before=await card();
+    await p.evaluate(()=>{ window.__n7=document.getElementById("next7").firstElementChild; });
+    await p.clock.runFor(61000);
+    const same=await p.evaluate(()=>document.getElementById("next7").firstElementChild===window.__n7);
+    await p.clock.runFor(60000);
+    const after=await card();
+    await p.evaluate(()=>{ location.hash="#home"; }); await p.waitForTimeout(400);
+    const home=await p.evaluate(()=>document.getElementById("homeUc3mInfo").innerText.replace(/\s+/g," "));
+    ok(before&&before.when==="hoy"&&!before.done&&same&&after&&after.done&&after.when==="hecho",
+      `the next 7 days: an exam that ended is "hecho", not "hoy", and the list is not rebuilt every minute (${JSON.stringify({before,same,after})})`);
+    ok(!/ED: hoy/.test(home)&&/Examen de EST: en 4 días/.test(home)&&/Entrega de /.test(home),`home's UC3M card: the next exam and the next submission, never one already over ("${home}")`);
+    await p.context().close();
+  }
+  }
+
   if(section("Cloud (simulated JSONBin)")){
   const REC={hechas:["gk_0","tk_is_0"],grades:{g_main_ed_0:"7"},notas:"old notes"};
   for(const mode of ["fails","slow","normal"]){

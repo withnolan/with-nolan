@@ -23,18 +23,18 @@ const Home=(function(){
   const put=(el,text)=>{ if(el&&el.textContent!==text) el.textContent=text; };
   const putHtml=(el,html)=>{ if(el&&el.dataset.html!==html){ el.dataset.html=html; el.innerHTML=html; } };
 
-  /* UC3M card summary: week, class now or next, and next assessment */
+  /* UC3M card summary: the week, the next exam and the next submission (the next class is the hero's);
+     whatever is already over today is not "next" any more */
   function draw(){
     const n=new Date(), k=isoDate(n), m=minutesOf(n);
     put($("#homeTime"),hhmm(m));
     put($("#homeGreeting"),t(Gate.guest()?"home.greetingGuest":"home.greeting",{hello:greeting(n.getHours()),name:"Nolan"}));
-    const cs=classesOn(k), next=cs.find(c=>classState(c,m)!=="over");
-    const cls=next?t(classState(next,m)==="now"?"home.now":"home.next",{subject:SUBJECTS[next.subject].name,time:hhmm(next.start),room:next.room})
-      :cs.length?t("home.doneToday"):(noClassReason(k)||{text:t("home.noClassToday")}).text.replace(/\.$/,"");
-    const ex=EVENTS.filter(e=>isAssessment(e)&&lastDay(e)>=k).sort(byDate)[0];
-    const exam=ex?t("home.nextExam",{type:typeName(ex),subject:SUBJECTS[ex.subject].short,when:whenLabel(ex,k)}):"";
+    const coming=EVENTS.filter(e=>isAssessment(e)&&!isOver(e,k,m)).sort(byDate);
+    const lines=["ex","en"].map(type=>coming.find(e=>e.type===type)).filter(Boolean)
+      .map(e=>t("home.nextExam",{type:typeName(e),subject:SUBJECTS[e.subject].short,when:whenLabel(e,k)}));
+    if(!lines.length) lines.push(t("home.nothingGraded"));
     const w=weekOf(k);
-    putHtml($("#homeUc3mInfo"),(w?`<i>${esc(t("header.week",{n:w.n}))}</i>`:"")+`<span>${esc(cls)}</span>`+(exam?`<span>${esc(exam)}</span>`:""));
+    putHtml($("#homeUc3mInfo"),(w?`<i>${esc(t("header.week",{n:w.n}))}</i>`:"")+lines.map(x=>`<span>${esc(x)}</span>`).join(""));
     drawNext(k,m);
   }
 

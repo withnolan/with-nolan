@@ -97,6 +97,9 @@
 .n7-card:last-child{border-bottom:0}
 @media (hover:hover){.n7-card:hover{background:var(--card-2)}}
 .n7-card.ex{background:rgba(255,107,94,.06)}
+/* already over today: it stays, quietly, as done */
+.n7-card.done{opacity:.5;filter:saturate(.5)}
+.n7-card.done .n7-when{color:var(--ink-3)}
 .n7-txt{flex:1;min-width:0}
 .n7-txt b{display:block;font-size:.88rem;font-weight:600}
 .n7-txt em{display:block;font-style:normal;font-size:.79rem;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

@@ -124,6 +124,14 @@ const typeLong=e=>t("typeLong."+kindOf(e));
 const lastDay=e=>e.until||e.date;                     /* last day (multi-day windows) */
 const weekNumber=e=>{ const w=weekOf(e.date); return w?w.n:null; };
 const isAssessment=e=>e.type==="ex"||e.type==="en";
+/* the minute it ends on its last day, read from its time ("09:00–10:30", "cierra sábado 14:00",
+   "hasta las 23:55", "closes Sunday 23:59"); without an end it lasts the whole day */
+function endsAt(e){
+  const s=e.time||"", x=/–\s*(\d{1,2})[:.](\d\d)/.exec(s)||/(?:cierra|closes|hasta|by)\D*?(\d{1,2})[:.](\d\d)/i.exec(s);
+  return x?+x[1]*60+ +x[2]:1440;
+}
+/* already over on day k at minute m (a date without a day is over only after its week) */
+const isOver=(e,k,m)=>lastDay(e)<k||(!e.noDay&&lastDay(e)===k&&endsAt(e)<=m);
 /* "Thu 24 Sep", "26–31 Oct", or the custom text of dates without a day */
 function eventLabel(e){
   if(e.noDay){
