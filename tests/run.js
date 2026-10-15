@@ -365,6 +365,19 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
   }
   }
 
+  if(section("Sky clear of words")){
+  {
+    /* on a phone the black hole sat on the hero's clock: the sky's brightest things stay clear of its words */
+    const p=await open(b,{hash:"home",mobile:true});
+    await p.waitForFunction(()=>Universe.ready(),null,{timeout:30000}).catch(()=>{});
+    const r=await p.evaluate(()=>{ const q=Universe.place("blackhole"), c=document.getElementById("homeTime").getBoundingClientRect(),
+      w=document.getElementById("homeWeather").getBoundingClientRect(), shade=getComputedStyle(document.querySelector("#schedule .shead"),"::before").content;
+      return q&&{x:Math.round(q.x),y:Math.round(q.y),r:Math.round(q.r),clock:[Math.round(c.top),Math.round(c.bottom)],words:[Math.round(document.querySelector("#portal .p-logo").getBoundingClientRect().top),Math.round(w.bottom)],shade}; });
+    ok(r&&(r.y+r.r<r.words[0]||r.y-r.r>r.words[1])&&r.shade!=="none",`phone: the black hole is clear of the hero's words, and section titles have their reading shade (${JSON.stringify(r)})`);
+    await p.context().close();
+  }
+  }
+
   if(section("Ended exams")){
   {
     /* an exam that has ended is never "today" again: ED, Thu 15 Oct 09:00–10:30. At 10:28 and 10:29 it is "hoy";

@@ -297,7 +297,7 @@ void main(){
 }`});
 
   /* ---------- a star eating its companion ---------- */
-  skyWonder("binary",{at:{d:[.61,.12],m:[.05,-.1]},z:110,R:5.2,blend:"over",sight:"binary",vis:.74,shader:COMMON+N3+`
+  skyWonder("binary",{at:{d:[.61,.12],m:[0,.66]},z:110,R:5.2,blend:"over",sight:"binary",vis:.74,shader:COMMON+N3+`
 uniform float uPh;    /* where they are on their orbit */
 void main(){
   vec2 p=vQ*1.3; const float ci=.34;                         /* the orbit, seen tilted */

@@ -77,7 +77,8 @@ const Universe=(function(){
      both from home and up close */
   const unit=v=>{ const l=Math.hypot(...v); return v.map(x=>x/l); };
   const SIGHTS={
-    bh:{star:"255,120,210", at:{d:[-.36,-.28],m:[-.45,-.1]}, z:90, R:1.5, open:.25, roll:-.1}};
+    /* (on a phone, clear of the hero's words: up between the Nolan galaxies, not on the clock) */
+    bh:{star:"255,120,210", at:{d:[-.36,-.28],m:[0,-.72]}, z:90, R:1.5, open:.25, roll:-.1}};
   /* the sights: places you can fly to and look at whole, one by one (home.js lists them, in its
      own order). Each is {p: where it is, R: how big it looks (world units), k: a closer or wider
      look}: the black hole, three galaxies (home's Whirlpool, the ring galaxy, the edge-on one), and the wonders of wonders.js, which

@@ -502,7 +502,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.98**. In `index.html`, bump the footer (`v0.98`; the entry screen copies it) and every `?v=0.98`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.99**. In `index.html`, bump the footer (`v0.99`; the entry screen copies it) and every `?v=0.99`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -513,7 +513,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **162 checks** in a real browser (166 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **163 checks** in a real browser (167 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -540,7 +540,7 @@ What they cover:
 | Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders (the Orion Nebula and the Pleiades round at every size), a supernova and its smooth passing, Quality Low and Medium, Effects, the constellation |
 | Other | compact header, swipe, idle, offline (opens and keeps a tick made offline) |
 
-**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Ended exams, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
+**Only what a change touches:** `ONLY="Astral,Settings" node tests/run.js` runs just the sections whose names start with those words (Loading, PIN and start, Tabs, Today, Sky clear of words, Ended exams, Cloud, Planner, Add to my calendar, Home, Guest, Settings, Astral, Compact header, Mobile, Idle, Offline). The whole run takes a long time on a slow machine: run it before a big release, and only the sections you touched otherwise.
 
 **Add a test whenever you fix a bug.**
 
