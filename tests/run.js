@@ -500,7 +500,9 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const r=await p.evaluate(()=>{ const list=document.querySelector('#portal .p-view[data-view="home"]'), top=document.querySelector("#portal .p-top").getBoundingClientRect();
       return {list:Math.round(list.getBoundingClientRect().top),h:innerHeight,hero:Math.round(top.bottom),more:!!document.getElementById("homeMore").offsetWidth,
         sights:document.querySelectorAll("#tourList .t-stop").length,menu:document.getElementById("tour").hidden,start:!!document.getElementById("tourStart").offsetWidth,
-        next:Math.round(document.getElementById("homeNext").getBoundingClientRect().bottom)}; });
+        next:Math.round(document.getElementById("homeNext").getBoundingClientRect().bottom),
+        last:Math.max(...[...document.querySelectorAll("#portal .p-card")].map(c=>c.getBoundingClientRect().bottom))<=document.getElementById("tourStart").getBoundingClientRect().top}; });
+    ok(r.last,`${mobile?"mobile":"desktop"}: "Start the journey" comes after the cards`);
     ok(r.next>0&&r.next<=r.h,`${mobile?"mobile":"desktop"}: the next class fits home's first screen (bottom ${r.next} of ${r.h})`);
     await p.click("#homeMore"); await p.waitForTimeout(900);
     const after=await p.evaluate(()=>{ const r=document.querySelector("#homeUc3m").getBoundingClientRect(); return r.top>=0&&r.top<innerHeight; });

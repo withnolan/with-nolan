@@ -501,7 +501,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.92**. In `index.html`, bump the footer (`v0.92`; the entry screen copies it) and every `?v=0.92`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.93**. In `index.html`, bump the footer (`v0.93`; the entry screen copies it) and every `?v=0.93`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -512,7 +512,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **141 checks** in a real browser (145 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **143 checks** in a real browser (147 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -554,7 +554,7 @@ Left for later. Pick up from here.
 Run this on the owner's laptop (real graphics card: 3D screenshots are fast there). `git pull` first. The new holidays, the EC notice of 14 Oct and the supernova and star fixes are already in. Still to do, one small validated step at a time, bumping the version for each one that goes live:
 
 1. ✅ *Done in v0.92.* **Home: the next class, always.** On the hero (near the greeting and the weather) always show the next class: subject, when ("now, 40 min left", "today 17:15", "tomorrow 9:00", "Thu 15 · 9:00") and where (room and campus). Search forward day by day with `classesOn`, `roomOn`, `campusOf`, `classState`; refresh in place on `minute` / `newDay`, no flicker. Tapping it opens the timetable flying into UC3M (like `#homeUc3m`, whose click router.js handles with `Home.enter("uc3m", …)`). It must fit the first screen on a phone.
-2. **Home: "Start the journey" (`#tourStart`) goes to the end** of the cards.
+2. ✅ *Done in v0.93.* **Home: "Start the journey" (`#tourStart`) goes to the end** of the cards.
 3. **The Nolan card is not "under construction" any more:** replace the crane icon with `NOLAN_SVG` (core.js), drop the `wip` dashed look and the glowing-dot tag. Careful: `css/cinema.css` hides private cards from guests with `.p-card.wip`: give them a dedicated marker (e.g. `data-private`) instead.
 4. **A spending universe at the black hole** ("because it eats my money"): a home card "Gastos / Spending" (icon: a black hole swallowing a coin), route `#spending` (alias `#gastos`) that opens inside home like `#nolan` (`sceneOf` in home.js → `"blackhole"`, `isHome` and the guest rule in router.js), showing a premium "coming soon" page for his future spending settings (monthly budget, spending this month, subscriptions, greyed out), with a bit of humour ("Todo lo que cae aquí no vuelve."). Not for guests. Tests in the Home and Guest sections.
 5. **The Nolan section (`#nolan`):** opens on the **month calendar** by default (`#nolan/dia` and `#nolan/semana` still work); the calendar **fills the screen** (full width and the available height, bigger cells; on a computer the whole month without scrolling); each day must hold many items (6–10) without breaking (stacked chips that scroll inside the cell, or "+N"); the top bar becomes **one slim row without the week counter**; its brand mark is `NOLAN_SVG` (the N logo stays the home button). Never break the UC3M Month tab (`#planner`), which shares planner.js / planner.css. Tests: Planner, Home.

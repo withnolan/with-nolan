@@ -101,7 +101,7 @@ html:not([data-motion=full]) .portal .p-view{animation:none}
    rings and moon, and the way in */
 .tour-start{
   grid-column:1/-1;position:relative;overflow:hidden;isolation:isolate;
-  display:flex;align-items:center;gap:30px;padding:40px 40px;border-radius:30px;margin-bottom:6px;
+  display:flex;align-items:center;gap:30px;padding:40px 40px;border-radius:30px;margin-top:6px;
   color:var(--ink);text-decoration:none;
   background:#0A0C18;
   box-shadow:0 26px 70px -28px rgba(90,120,255,.7);
