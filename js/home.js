@@ -35,6 +35,32 @@ const Home=(function(){
     const exam=ex?t("home.nextExam",{type:typeName(ex),subject:SUBJECTS[ex.subject].short,when:whenLabel(ex,k)}):"";
     const w=weekOf(k);
     putHtml($("#homeUc3mInfo"),(w?`<i>${esc(t("header.week",{n:w.n}))}</i>`:"")+`<span>${esc(cls)}</span>`+(exam?`<span>${esc(exam)}</span>`:""));
+    drawNext(k,m);
+  }
+
+  /* the hero's next class, always: the one on now, or the first still to come, looking forward day by day
+     (past weekends, breaks and the exam period). Built once, then only its words change: no flicker */
+  function nextClass(k,m){
+    for(let d=0; d<150; d++){
+      const day=addDays(k,d), c=classesOn(day).find(c=>d||classState(c,m)!=="over");
+      if(c) return {c,day,d};
+    }
+    return null;
+  }
+  function drawNext(k,m){
+    const a=$("#homeNext"); if(!a) return;
+    const n=nextClass(k,m);
+    a.hidden=!n; if(!n) return;
+    if(!a.firstChild) a.innerHTML=`<span class="pn-txt"><b></b><span></span></span><em></em>`;
+    const {c,day,d}=n, S=SUBJECTS[c.subject], at=fromISO(day);
+    const when=!d&&classState(c,m)==="now"?t("home.nextNow",{n:c.end-m})
+      :t("home.nextAt",{day:!d?t("when.today"):d===1?t("when.tomorrow"):d<7?fmtDayShort(at):fmtShort(at),time:hhmm(c.start)});
+    a.style.setProperty("--sc",S.color);
+    put(a.querySelector("b"),S.name);
+    put(a.querySelector(".pn-txt span"),roomOn(c,day)+" · "+campusOf(c.subject));
+    put(a.querySelector("em"),cap(when));
+    a.classList.toggle("now",!d&&classState(c,m)==="now");
+    a.setAttribute("aria-label",t("home.nextAria",{subject:S.name,when,room:roomOn(c,day),campus:campusOf(c.subject)}));
   }
 
   /* ---------- the sights, in the order of home's list (and of the arrows between them) ----------
@@ -170,7 +196,7 @@ const Home=(function(){
     return "#home";
   }
   document.addEventListener("minute",()=>{ if(!P.hidden) draw(); });
-  document.addEventListener("newDay",drawSights);           /* the Moon's phase */
+  document.addEventListener("newDay",()=>{ drawSights(); if(!P.hidden) draw(); });   /* the Moon's phase; the next class */
 
   /* ---------- the first screen is the hero alone; the rest is further down ----------
      a small arrow at its foot says so, and fades once you scroll */

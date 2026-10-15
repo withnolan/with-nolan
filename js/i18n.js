@@ -89,6 +89,7 @@ es:{
   "home.night":"Buenas noches", "home.morning":"Buenos días", "home.afternoon":"Buenas tardes", "home.greeting":"{hello}, {name}",
   "home.now":"Ahora: {subject} · {time} · {room}", "home.next":"Siguiente: {subject} · {time} · {room}",
   "home.doneToday":"Clases de hoy terminadas", "home.noClassToday":"Hoy no tienes clase.", "home.nextExam":"{type} de {subject}: {when}",
+  "home.nextNow":"ahora · quedan {n} min", "home.nextAt":"{day} · {time}", "home.nextAria":"Próxima clase: {subject}, {when}, {room}, {campus}. Abrir el horario",
   "nolan.brand":"Nolan", "nolan.day":"Día", "nolan.week":"Semana", "nolan.month":"Mes", "nolan.windows":"Ventanas de Nolan", "nolan.prev":"Anterior", "nolan.next":"Siguiente", "nolan.allDay":"todo el día", "nolan.nothing":"Nada este día. Pulsa + para añadir algo.", "nolan.back":"← Volver al inicio",
   /* cloud */
   "gate.title":"Introduce el PIN", "gate.wrong":"PIN incorrecto", "gate.delete":"Borrar",
@@ -227,6 +228,7 @@ en:{
   "home.night":"Good evening", "home.morning":"Good morning", "home.afternoon":"Good afternoon", "home.greeting":"{hello}, {name}",
   "home.now":"Now: {subject} · {time} · {room}", "home.next":"Next: {subject} · {time} · {room}",
   "home.doneToday":"Today's classes are over", "home.noClassToday":"No class today.", "home.nextExam":"{type} · {subject}: {when}",
+  "home.nextNow":"now · {n} min left", "home.nextAt":"{day} · {time}", "home.nextAria":"Next class: {subject}, {when}, {room}, {campus}. Open the timetable",
   "nolan.brand":"Nolan", "nolan.day":"Day", "nolan.week":"Week", "nolan.month":"Month", "nolan.windows":"Nolan's windows", "nolan.prev":"Previous", "nolan.next":"Next", "nolan.allDay":"all day", "nolan.nothing":"Nothing this day. Tap + to add something.", "nolan.back":"← Back to home",
   "gate.title":"Enter your PIN", "gate.wrong":"Wrong PIN", "gate.delete":"Delete",
   "gate.guest":"Guest", "gate.pinAria":"Enter with the PIN", "home.greetingGuest":"{hello}, guest",

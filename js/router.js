@@ -124,6 +124,8 @@ const Router=(function(){
   }));
   /* the UC3M card on home takes you back to the tab you were on */
   $("#homeUc3m").addEventListener("click",ev=>{ ev.preventDefault(); Home.enter("uc3m",()=>goTo(last)); });
+  /* the hero's next class flies into UC3M too, to the timetable */
+  $("#homeNext").addEventListener("click",ev=>{ ev.preventDefault(); Home.enter("uc3m",()=>goTo("schedule")); });
   /* Escape goes back: to where you came from (the place before, home, the tab); in the app it first closes
      whichever detail panel is open; with nothing of this site behind, from a place to home, from home to the app */
   document.addEventListener("keydown",ev=>{

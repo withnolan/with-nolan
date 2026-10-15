@@ -161,6 +161,27 @@ body.arriving>div.wrap{animation-delay:.2s}
 .p-tool:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .portal.intro .p-bar{animation:fade-in 1s 2.6s ease backwards}
 
+/* the next class: a slim glass line under the greeting, its subject's colour on the left (home.js) */
+.p-next{
+  display:flex;align-items:center;gap:12px;width:100%;max-width:400px;margin-top:16px;padding:10px 14px 10px 16px;border-radius:16px;
+  position:relative;overflow:hidden;text-align:left;text-decoration:none;color:var(--ink);
+  background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.015)),rgba(6,7,11,.55);
+  border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  transition:border-color .25s ease,background .25s ease,transform .15s var(--spring);
+}
+.p-next[hidden]{display:none}
+.p-next::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--sc);box-shadow:0 0 10px var(--sc)}
+.pn-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.pn-txt b{font-size:.92rem;font-weight:700;line-height:1.25}
+.pn-txt span{font-size:.76rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-next em{flex:0 0 auto;font-style:normal;font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--sc) 70%,#fff)}
+.p-next.now em{padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--sc) 18%,transparent)}
+@media (hover:hover){.p-next:hover{border-color:color-mix(in srgb,var(--sc) 50%,transparent);background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.02)),rgba(6,7,11,.6)}}
+.p-next:active{transform:scale(.98)}
+.p-next:focus-visible{outline:2px solid var(--sc);outline-offset:2px}
+.portal.intro .p-next{animation:rise 1s 2.2s var(--ease) backwards}
+@media (max-width:620px){.p-next{max-width:none;margin-top:14px}}
+
 /* the sky outside: a small glass card — now on top, the day below */
 .p-weather{display:flex;justify-content:center;margin-top:18px;width:100%}
 .w-card{

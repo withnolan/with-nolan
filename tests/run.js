@@ -499,10 +499,32 @@ const FAKE_CONFIG=()=>{ Object.defineProperty(window,"CONFIG",{value:{BIN_ID:"te
     const p=await open(b,{hash:"home",mobile});
     const r=await p.evaluate(()=>{ const list=document.querySelector('#portal .p-view[data-view="home"]'), top=document.querySelector("#portal .p-top").getBoundingClientRect();
       return {list:Math.round(list.getBoundingClientRect().top),h:innerHeight,hero:Math.round(top.bottom),more:!!document.getElementById("homeMore").offsetWidth,
-        sights:document.querySelectorAll("#tourList .t-stop").length,menu:document.getElementById("tour").hidden,start:!!document.getElementById("tourStart").offsetWidth}; });
+        sights:document.querySelectorAll("#tourList .t-stop").length,menu:document.getElementById("tour").hidden,start:!!document.getElementById("tourStart").offsetWidth,
+        next:Math.round(document.getElementById("homeNext").getBoundingClientRect().bottom)}; });
+    ok(r.next>0&&r.next<=r.h,`${mobile?"mobile":"desktop"}: the next class fits home's first screen (bottom ${r.next} of ${r.h})`);
     await p.click("#homeMore"); await p.waitForTimeout(900);
     const after=await p.evaluate(()=>{ const r=document.querySelector("#homeUc3m").getBoundingClientRect(); return r.top>=0&&r.top<innerHeight; });
     ok(r.list>=r.h&&r.more&&r.sights===11&&r.menu&&r.start&&after,`${mobile?"mobile":"desktop"}: home's first screen is only the hero; "Start the journey" (eleven places) and the sections come when you scroll (${JSON.stringify(r)})`);
+    await p.context().close();
+  }
+  {
+    /* the next class, always: the one on now (minutes left, changed in place), later today, tomorrow, or after the weekend */
+    const p=await open(b,{hash:"home",clock:"live"});
+    await p.waitForTimeout(600);
+    const read=()=>p.evaluate(()=>({text:document.getElementById("homeNext").innerText.replace(/\s+/g," ")}));
+    const now=await p.evaluate(()=>{ const a=document.getElementById("homeNext"); window.__em=a.querySelector("em"); return a.innerText.replace(/\s+/g," "); });
+    await p.clock.runFor(61000);
+    const later=await p.evaluate(()=>({text:document.getElementById("homeNext").innerText.replace(/\s+/g," "),same:document.querySelector("#homeNext em")===window.__em}));
+    ok(/Principios de Economía/.test(now)&&/Aula 10\.2\.1 · Getafe/.test(now)&&/Ahora · quedan 54 min/.test(now)&&/quedan 53 min/.test(later.text)&&later.same,
+      `Monday 13:06: the class on now, its room and campus, its minutes left changing in place ("${now}" → "${later.text}")`);
+    const at=async time=>{ await p.clock.setSystemTime(new Date(time)); await p.clock.runFor(61000); return (await read()).text; };
+    const evening=await at("2026-09-21T20:00:00"), friday=await at("2026-09-25T20:00:00");
+    ok(/Tª Autómatas/.test(evening)&&/Mañana · 09:00/.test(evening)&&/Aula 2\.3\.B05 · Leganés/.test(evening)&&/Estadística II/.test(friday)&&/Lun 28 · 09:00/.test(friday),
+      `in the evening, tomorrow's first class; on Friday evening, Monday's ("${evening}" | "${friday}")`);
+    await p.click("#homeNext");
+    await p.waitForFunction(()=>document.getElementById("portal").hidden&&location.hash==="#schedule",null,{timeout:15000}).catch(()=>{});
+    ok(await p.evaluate(()=>document.getElementById("portal").hidden&&location.hash==="#schedule"&&!document.getElementById("schedule").hidden)&&!p.errors.length,
+      `tapping the next class opens the timetable in UC3M ${p.errors.join(" | ")}`);
     await p.context().close();
   }
   {

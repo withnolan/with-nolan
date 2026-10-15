@@ -36,7 +36,7 @@ Nolan's personal organizer, set inside a living 3D universe. Today it covers the
 | Part | What it does |
 |---|---|
 | **Entry screen** | Nolan's logo (opens the PIN keypad) and a **Guest** button that opens a demo. See [PIN and guest mode](#pin-and-guest-mode). |
-| **Home** (`#home`) | Where the app starts: the time, a greeting and the weather where you are. Further down, the sections **UC3M** and **Nolan**, and **Start the journey** through the sights of the universe. |
+| **Home** (`#home`) | Where the app starts: the time, a greeting, the next class (tap it for the timetable) and the weather where you are. Further down, the sections **UC3M** and **Nolan**, and **Start the journey** through the sights of the universe. |
 | **Sights** (`#earth`, `#moon`, `#blackhole`, `#whirlpool`, `#ringgalaxy`, `#edgeon`, `#orion`, `#pleiades`, `#ring`, `#binary`, `#antennae`) | The camera flies to each one and frames it, with its name, a few words and a dock to go to the others. |
 | **Schedule** (`#schedule`) | *Today* (the day's classes, the red "now" line, "X min left"), the next 7 days, and the weekly timetable. Tap a class to see all its dates in a small pop-up. |
 | **Month** (`#planner`) | The whole year's monthly planner. **+ Add** (top right) adds an event of your own. |
@@ -425,7 +425,8 @@ Both sit far behind home: the opening starts beside them, and the sights `#earth
 
 Home (`#home`, `js/home.js`, `css/home.css`) is a window over everything; the page behind cannot be clicked or tabbed into.
 
-- **First screen:** the hero alone (logo, NOLAN, the time, the greeting, the weather). A small arrow (`#homeMore`) scrolls to the rest.
+- **First screen:** the hero alone (logo, NOLAN, the time, the greeting, the next class, the weather). A small arrow (`#homeMore`) scrolls to the rest.
+- **The next class** (`#homeNext`, `drawNext` in `home.js`): always the class on now ("Now · 40 min left") or the first still to come, looked for day by day with `classesOn` (past weekends, breaks and the exam period): subject, when ("Today · 17:15", "Tomorrow · 09:00", "Thu 15 · 09:00"), room and campus. Built once, then only its words change each minute. Tapping it flies into UC3M, to the timetable (`router.js`).
 - **Further down:** the section cards (UC3M with the week, the class now and the next assessment; Nolan) and **Start the journey** (`#tourStart`), which flies to the Earth and starts the tour.
 - **A sight's page** (`#<id>`): the words sit low over a soft shade, so the sight fills the sky above: a line on what it is, its name, a few words and "Destination n of 11".
 - **The tour's dock** (`#tour`, from `SIGHTS`): every place with its icon and colour; arrows (and ← →) to the previous and next; the logo goes home.
@@ -500,7 +501,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 ## Publishing a version
 
 1. **Never publish two versions under the same number**: the offline copy keeps each file by its `?v=`, so a device would mix old files with the new page.
-2. The current version is **0.91**. In `index.html`, bump the footer (`v0.91`; the entry screen copies it) and every `?v=0.91`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
+2. The current version is **0.92**. In `index.html`, bump the footer (`v0.92`; the entry screen copies it) and every `?v=0.92`, all at once. If the logo changes, also bump the icons' `?v=` in `index.html` and `manifest.webmanifest`.
 3. Push to `main`. GitHub Pages takes a minute or two; the footer number shows which version you see.
 
 ---
@@ -511,7 +512,7 @@ Add its values to `SETTINGS_DEFAULTS` and `SETTINGS_OPTIONS` (`prefs.js`), a row
 node tests/run.js
 ```
 
-Needs Node and Playwright. **136 checks** in a real browser (140 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
+Needs Node and Playwright. **141 checks** in a real browser (145 with the PIN). They never reach the real cloud or weather: JSONBin, Open-Meteo and BigDataCloud are cut off unless a test puts a fake in front (`config.js` may hold real keys).
 
 **The PIN is not in the tests either.** The checks that type it read it from the environment:
 
@@ -534,7 +535,7 @@ What they cover:
 | No flicker | the red line, home's cards, the weather card, ticks from the cloud |
 | Calendar | the red line at different times, minute and midnight changes, dates without a day, multi-day windows |
 | Cloud | failed or slow first reads, old ticks migrated, the device copy first, grades with a comma |
-| Home and settings | the window, just the sky, Nolan, the reload fade, English, every text translated, the animation levels |
+| Home and settings | the window, the next class, just the sky, Nolan, the reload fade, English, every text translated, the animation levels |
 | Astral | weather and sun, the galaxies, the Moon's phase, meteor showers, the band, the seven wonders (the Orion Nebula and the Pleiades round at every size), a supernova and its smooth passing, Quality Low and Medium, Effects, the constellation |
 | Other | compact header, swipe, idle, offline (opens and keeps a tick made offline) |
 
@@ -552,7 +553,7 @@ Left for later. Pick up from here.
 
 Run this on the owner's laptop (real graphics card: 3D screenshots are fast there). `git pull` first. The new holidays, the EC notice of 14 Oct and the supernova and star fixes are already in. Still to do, one small validated step at a time, bumping the version for each one that goes live:
 
-1. **Home: the next class, always.** On the hero (near the greeting and the weather) always show the next class: subject, when ("now, 40 min left", "today 17:15", "tomorrow 9:00", "Thu 15 · 9:00") and where (room and campus). Search forward day by day with `classesOn`, `roomOn`, `campusOf`, `classState`; refresh in place on `minute` / `newDay`, no flicker. Tapping it opens the timetable flying into UC3M (like `#homeUc3m`, whose click router.js handles with `Home.enter("uc3m", …)`). It must fit the first screen on a phone.
+1. ✅ *Done in v0.92.* **Home: the next class, always.** On the hero (near the greeting and the weather) always show the next class: subject, when ("now, 40 min left", "today 17:15", "tomorrow 9:00", "Thu 15 · 9:00") and where (room and campus). Search forward day by day with `classesOn`, `roomOn`, `campusOf`, `classState`; refresh in place on `minute` / `newDay`, no flicker. Tapping it opens the timetable flying into UC3M (like `#homeUc3m`, whose click router.js handles with `Home.enter("uc3m", …)`). It must fit the first screen on a phone.
 2. **Home: "Start the journey" (`#tourStart`) goes to the end** of the cards.
 3. **The Nolan card is not "under construction" any more:** replace the crane icon with `NOLAN_SVG` (core.js), drop the `wip` dashed look and the glowing-dot tag. Careful: `css/cinema.css` hides private cards from guests with `.p-card.wip`: give them a dedicated marker (e.g. `data-private`) instead.
 4. **A spending universe at the black hole** ("because it eats my money"): a home card "Gastos / Spending" (icon: a black hole swallowing a coin), route `#spending` (alias `#gastos`) that opens inside home like `#nolan` (`sceneOf` in home.js → `"blackhole"`, `isHome` and the guest rule in router.js), showing a premium "coming soon" page for his future spending settings (monthly budget, spending this month, subscriptions, greyed out), with a bit of humour ("Todo lo que cae aquí no vuelve."). Not for guests. Tests in the Home and Guest sections.
